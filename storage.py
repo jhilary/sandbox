@@ -5,18 +5,27 @@ from itertools import zip_longest
 class StorageRow(namedtuple("StorageRow", ["my", "opponent", "my_card", "opponent_card", "is_me_first", "value"])):
     def __repr__(self):
         result = ""
-        if self.is_me_first:
-            for event1, event2 in zip_longest(self.my, self.opponent):
-                result += "I: %s\n" % event1
-                result += "O: %s\n" % event2
-        else:
-            for event1, event2 in zip_longest(self.opponent, self.my):
-                result += "O: %s\n" % event1
-                result += "I: %s\n" % event2
+        for i, event in enumerate(self.cards_sequence):
+            is_my_turn = (i + int(self.is_me_first)) % 2
+            result += ("I: %s\n" if is_my_turn else "O: %s\n") % event
+
         result += "My guess: %s(%s)\n" % (self.my[-1], self.opponent_card)
         result += "Opponent guess: %s(%s)\n" % (self.opponent[-1], self.my_card)
         result += "Value: %r\n" % self.value
         return result
+
+    @property
+    def cards_sequence(self):
+        sequence = []
+        if self.is_me_first:
+            for event1, event2 in zip_longest(self.my, self.opponent):
+                sequence.append(event1)
+                sequence.append(event2)
+        else:
+            for event1, event2 in zip_longest(self.opponent, self.my):
+                sequence.append(event1)
+                sequence.append(event2)
+        return sequence
 
 
 class Storage(object):

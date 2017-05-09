@@ -2,8 +2,7 @@ from storage import Storage, StorageRow
 from casino import Player, Card
 
 
-class B1V1(Player):
-
+class IlariiaPlayer(Player):
     def __init__(self):
         self.storage = Storage()
         self.my = []
@@ -30,17 +29,15 @@ class B1V1(Player):
         self.value = 0
 
     def __repr__(self):
-        return "(State) My card:%s; Opponent card:%s; My turns: %s; Opponent turns: %s; IsMeFirst:%s; Value:%s\n" % \
-               (self.my_card,
-                self.op_card,
+        return "(State)\nMy card: %s;\nOpponent card: %s;\n" \
+               "My turns: %s;\nOpponent turns: %s;\n" \
+               "My turn is first: %s;\nValue: %s\n" % \
+               (self.my_card.name if self.my_card else self.my_card,
+                self.op_card.name if self.op_card else self.op_card,
                 ", ".join(card.name for card in self.my),
                 ", ".join(card.name for card in self.opponent),
                 self.is_me_first,
                 self.value)
-
-    @property
-    def name(self) -> str:
-        return "IlariiaB1V1"
 
     def take_card(self, card: Card) -> None:
         self.my_card = card
@@ -63,12 +60,11 @@ class B1V1(Player):
         self.opponent.append(card)
 
     def would_change_card(self) -> bool:
-        # Opponent said black, it has red, so I if told black I need change
-        if self.opponent[-1] == self.my[-1]:
-            self.my.append(self._change_card(self.my[-1]))
+        card = self._make_decision()
+        if card != self.my[-1]:
+            self.my.append(card)
             return True
         else:
-            self.my.append(self.my[-1])
             return False
 
     def opponent_card(self, card: Card) -> None:
@@ -82,6 +78,16 @@ class B1V1(Player):
 
     def opponent_changed_card(self):
         self.opponent_said_card(self._change_card(self.opponent[-1]))
+
+    def _make_decision(self) -> Card:
+        raise NotImplementedError()
+
+
+class B1V1(IlariiaPlayer):
+
+    @property
+    def name(self) -> str:
+        return "IlariiaB1V1"
 
     def _make_decision(self) -> Card:
         if self.opponent:
@@ -102,12 +108,35 @@ class B1V1(Player):
         assert False, "Cannot be reached"
 
 
+class B1V2(IlariiaPlayer):
+    @property
+    def name(self) -> str:
+        return "IlariiaUltimatum"
+
+    def _make_decision(self) -> Card:
+        if self.opponent:
+            if len(self.opponent) > 1:
+                if self.opponent[-1] == self.opponent[-2]:
+                    return self.my[-1]
+
+            if self.opponent[-1] == Card.BLACK:
+                return Card.RED
+            if self.opponent[-1] == Card.RED:
+                return Card.BLACK
+
+        if self.my_card == Card.BLACK:
+            return Card.RED
+        if self.my_card == Card.RED:
+            return Card.BLACK
+
+        assert False, "Cannot be reached"
+
 if __name__ == "__main__":
     player = B1V1()
 
     player.take_card(Card.RED)
-    card = player.say_card()
     player.opponent_said_card(Card.BLACK)
+    card = player.say_card()
     decision = player.would_change_card()
     player.opponent_card(Card.BLACK)
     print(player)
