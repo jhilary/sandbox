@@ -1,4 +1,5 @@
 import random
+from pprint import pprint
 from typing import Dict
 
 from casino import Player, Card, Game
@@ -81,13 +82,13 @@ class SmarterBaseline(Player):
 
 def main():
     p1 = MishaBotV1(10)
-    p2 = BaselinePlayer("Smarter")
+    p2 = SmarterBaseline("Basic")
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 1000
+    games = 10
     rounds = 1000
     print("Start battle %s vs %s\n" % (p1.name, p2.name))
     for i in range(games):
-        game = Game(p1, 100, p2, 100, rounds=rounds, debug=False)
+        game = Game(p1, 100, p2, 100, rounds=rounds, debug=True)
         winner = game.run()
         if winner is not None:
             winners[winner] += 1
