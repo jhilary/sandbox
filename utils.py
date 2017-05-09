@@ -34,3 +34,6 @@ class Inteleaving(Player):
 
     def opponent_card(self, card: Card) -> None:
         self._current_strategy.opponent_card(card)
+
+    def end_round(self) -> None:
+        pass

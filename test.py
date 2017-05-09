@@ -2,6 +2,7 @@ import random
 from typing import Dict
 
 from casino import Player, Card, Game
+from misha import MishaBotV1
 from utils import Inteleaving
 from ilariia import B1V1
 
@@ -79,12 +80,10 @@ class SmarterBaseline(Player):
 
 
 def main():
-    p11 = SmarterBaseline("Misha-smarter")
-    p12 = BaselinePlayer("Misha-base")
-    p1 = BaselinePlayer("Misha-base") #Inteleaving("Misha", p11, p12)
-    p2 = B1V1()
+    p1 = MishaBotV1(10)
+    p2 = BaselinePlayer("Smarter")
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 1000
+    games = 100
     for i in range(games):
         game = Game(p1, 100, p2, 100, rounds=1000)
         winner = game.run()
@@ -93,6 +92,7 @@ def main():
     print("After %s games player %s won %s times and player %s won %s times" % (games,
                                                                                 p1.name, winners[p1],
                                                                                 p2.name, winners[p2]))
+    print(p1.counters)
 
 
 if __name__ == "__main__":

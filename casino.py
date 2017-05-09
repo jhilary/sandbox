@@ -1,6 +1,6 @@
 import random
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Optional
+from typing import Dict
 from enum import Enum
 
 
@@ -12,6 +12,7 @@ class Card(Enum):
 class Action(Enum):
     PASS = "PASS"
     CHANGE = "CHANGE"
+
 
 class Player(object):
     __metaclass__ = ABCMeta
@@ -77,6 +78,7 @@ class GameRound(object):
         self.bank += 20
         self.current_money[self.player1] -= 10
         self.current_money[self.player2] -= 10
+        # noinspection PyDictCreation
         self.bids: Dict[Player, Card] = {}
 
         self.bids[self.player1] = self.player1.say_card()
