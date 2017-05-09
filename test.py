@@ -101,11 +101,14 @@ def versus(p1, p2):
 
 def main():
     versus(B1V2(100), B1V1())
+    versus(B1V3(100), B1V1())
     versus(B1V2(100), SmarterBaseline("MishaSmarter"))
     versus(B1V2(100), BaselinePlayer("MishaBaseline"))
     versus(B1V3(100), SmarterBaseline("MishaSmarter"))
     versus(B1V3(100), BaselinePlayer("MishaBaseline"))
     versus(B1V2(100), B1V3(100))
+    versus(MishaBotV1(10), BaselinePlayer("MishaBaseline"))
+    versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
 
 if __name__ == "__main__":
     main()

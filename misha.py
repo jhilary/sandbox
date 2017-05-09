@@ -1,49 +1,104 @@
+from collections import namedtuple
+from itertools import product
+
 from casino import Player, Card
+
+RoundHistory = namedtuple("RoundHistory", "my_card opp_said_card changed opp_card")
 
 
 class MishaBotV1(Player):
     def __init__(self, apriori=10):
         self._my_card: Card = None
-        self._op_card: Card = None
-        self._number_of_rounds = apriori * 4
-        self.counters = {(Card.RED, Card.RED): apriori,
-                         (Card.RED, Card.BLACK): apriori,
-                         (Card.BLACK, Card.RED): apriori,
-                         (Card.BLACK, Card.BLACK): apriori}
+        self._my_said_card: Card = None
+        self._op_said_card: Card = None
+        self._op_changed_card: bool = None
+        self._apriori = apriori
+        self.marginal_counters = self._init_counters(apriori)
+        self._number_of_rounds = len(self.marginal_counters) * apriori
 
-    def win(self, value) -> None:
-        pass
-
-    def opponent_card(self, card) -> None:
-        self.counters[(self._my_card, card)] += 1
-
-    def would_change_card(self) -> bool:
-        return False
-
-    def say_card(self) -> Card:
-        inverted = self._invert_card(self._my_card)
-        prob1 = self.counters[(self._my_card, self._my_card)] / self._number_of_rounds
-        prob2 = self.counters[(self._my_card, inverted)] / self._number_of_rounds
-        if prob1 >= prob2:
-            return self._my_card
-        else:
-            return inverted
-
-    def take_card(self, card: Card) -> None:
-        self._my_card = card
+    @staticmethod
+    def _init_counters(apriori):
+        mycard = [Card.RED, Card.BLACK]
+        opsaid = [Card.RED, Card.BLACK]
+        changed = [True, False]
+        opcard = [Card.RED, Card.BLACK]
+        return {RoundHistory(*i): apriori for i in product(mycard, opsaid, changed, opcard)}
 
     @property
     def name(self) -> str:
         return self.__class__.__name__
 
+    def take_card(self, card: Card) -> None:
+        self._my_card = card
+
+    def win(self, value) -> None:
+        pass
+
+    def would_change_card(self) -> bool:
+        return False
+        if self._op_said_card != self._my_card:
+            return False
+
+        current_prob = self._p_opcard_cond_all(self._my_said_card)
+        alt_prob = self._p_opcard_cond_all(self._invert_card(self._my_said_card))
+        if alt_prob > current_prob:
+            print("Changing card. New prob is %s, old prob is %s" % (alt_prob, current_prob))
+            print("Current state: mycard %s, opsaid %s, changed %s, my_said_card: %s" % (self._my_card,
+                                                                                         self._op_said_card,
+                                                                                         self._op_changed_card,
+                                                                                         self._my_said_card))
+            return True
+        else:
+            return False
+
+    def say_card(self) -> Card:
+        p_opcard_red_cond_all = self._p_opcard_cond_all(Card.RED)
+        p_opcard_black_cond_all = self._p_opcard_cond_all(Card.BLACK)
+        self._my_said_card = Card.RED if p_opcard_red_cond_all > p_opcard_black_cond_all else Card.BLACK
+        return self._my_said_card
+
+    def _p_opcard_cond_all(self, opcard):
+        p_all_marg = self._marg_p(mycard=self._my_card, opsaid=self._op_said_card, changed=self._op_changed_card)
+        p_all_cond_opcard = self._cond_p(opcard=opcard, mycard=self._my_card,
+                                         opsaid=self._op_said_card, changed=self._op_changed_card)
+        p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
+        return p_opcard_cond_all
+
+    def _marg_p(self, mycard=None, opsaid=None, changed=None, opcard=None):
+        mycard = [Card.RED, Card.BLACK] if mycard is None else [mycard]
+        opsaid = [Card.RED, Card.BLACK] if opsaid is None else [opsaid]
+        changed = [True, False] if changed is None else [changed]
+        opcard = [Card.RED, Card.BLACK] if opcard is None else [opcard]
+        counter = sum(self.marginal_counters[RoundHistory(*i)] for i in product(mycard, opsaid, changed, opcard))
+        return counter / self._number_of_rounds
+
+    def _cond_p(self, opcard, mycard, opsaid=None, changed=None):
+        opsaid = [Card.RED, Card.BLACK] if opsaid is None else [opsaid]
+        changed = [True, False] if changed is None else [changed]
+        mycard = [mycard]
+        total = sum(self.marginal_counters[RoundHistory(*i)] for i in product([Card.RED, Card.BLACK],
+                                                                              [Card.RED, Card.BLACK],
+                                                                              [True, False],
+                                                                              [opcard]))
+        count = sum(self.marginal_counters[RoundHistory(*i)] for i in product(mycard, opsaid, changed, [opcard]))
+        return count / total
+
     def end_round(self) -> None:
+        pass
+
+    def opponent_card(self, card) -> None:
+        changed = False if self._op_changed_card is None else self._op_changed_card
+        history = RoundHistory(self._my_card, self._op_said_card, changed, card)
+        self.marginal_counters[history] += 1
         self._number_of_rounds += 1
 
-    def opponent_changed_card(self) -> None:
-        self._op_card = self._invert_card(self._op_card)
+    def opponent_change_card(self, is_changed: bool) -> None:
+        if is_changed:
+            self._op_changed_card = True
+            self._op_said_card = self._invert_card(self._op_said_card)
 
     def opponent_said_card(self, card: Card) -> None:
-        pass
+        self._op_said_card = card
 
     @staticmethod
     def _invert_card(card: Card):

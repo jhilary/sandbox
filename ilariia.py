@@ -33,8 +33,8 @@ class IlariiaPlayer(Player):
                "Value: %s\n" % \
                (self.my_card.name if self.my_card else self.my_card,
                 self.op_card.name if self.op_card else self.op_card,
-                ", ".join(card.name for card in self.my),
-                ", ".join(card.name for card in self.opponent),
+                ", ".join(card.name if card else "None" for card in self.my) ,
+                ", ".join(card.name if card else "None" for card in self.opponent),
                 self.value)
 
     def take_card(self, card: Card) -> None:
