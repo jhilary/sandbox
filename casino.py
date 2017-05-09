@@ -121,10 +121,10 @@ class GameRound(object):
         return self.last_action
 
     def _resolve(self) -> (int, int):
-        p1_correct = self.bids[self.player1] == self.cards[self.player1]
-        p2_correct = self.bids[self.player2] == self.cards[self.player2]
-        print("%s had %s and %s had %s" % (self.player1.name, self.bids[self.player1].name,
-                                           self.player2.name, self.bids[self.player2].name))
+        p1_correct = self.bids[self.player1] == self.cards[self.player2]
+        p2_correct = self.bids[self.player2] == self.cards[self.player1]
+        print("%s had %s and %s had %s" % (self.player1.name, self.cards[self.player1].name,
+                                           self.player2.name, self.cards[self.player2].name))
         if p1_correct and p2_correct:
             value = self.bank / 2
             p1_value = self.current_money[self.player1] + value - self.starting_money[self.player1]
