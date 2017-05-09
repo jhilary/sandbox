@@ -71,9 +71,9 @@ class GameRound(object):
         card1, card2 = random.sample(self.CARDS, 2)
         self.cards: Dict[Player, Card] = {self.player1: card1, self.player2: card2}
         self.player1.take_card(card1)
-        print("Player %s got card %s" % (self.player1.name, card1.name))
+        print("%s got card %s" % (self.player1.name, card1.name))
         self.player2.take_card(card2)
-        print("Player %s got card %s" % (self.player2.name, card2.name))
+        print("%s got card %s" % (self.player2.name, card2.name))
 
         self.bank += 20
         self.current_money[self.player1] -= 10
@@ -85,10 +85,10 @@ class GameRound(object):
         self.bids[self.player2] = self.player2.say_card()
         self.player1.opponent_said_card(self.bids[self.player2])
 
-        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player1.name, self.bids[player1].name,
+        print("%s made first bid %s. Its money: %s. Bank: %s" % (self.player1.name, self.bids[player1].name,
                                                                         self.current_money[player1],
                                                                         self.bank))
-        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player2.name, self.bids[player2].name,
+        print("%s made first bid %s. Its money: %s. Bank: %s" % (self.player2.name, self.bids[player2].name,
                                                                         self.current_money[player2],
                                                                         self.bank))
 
@@ -127,7 +127,7 @@ class GameRound(object):
                 self.bank += 10
                 self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
 
-        print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
+        print("%s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
                                                                                      player_action.name,
                                                                                      self.bids[player].name,
                                                                                      self.current_money[player],
@@ -146,11 +146,11 @@ class GameRound(object):
             assert p1_value + p2_value == 0, (p1_value, p2_value)
             print("Both player guessed right")
         elif p1_correct and not p2_correct:
-            print("Player %s guessed right and player %s guessed wrong" % (self.player1.name, self.player2.name))
+            print("%s guessed right and %s guessed wrong" % (self.player1.name, self.player2.name))
             p1_value = self.current_money[self.player1] + self.bank - self.starting_money[self.player1]
             p2_value = self.current_money[self.player2] - self.starting_money[self.player2]
         elif not p1_correct and p2_correct:
-            print("Player %s guessed right and player %s guessed wrong" % (self.player2.name, self.player1.name))
+            print("%s guessed right and %s guessed wrong" % (self.player2.name, self.player1.name))
             p1_value = self.current_money[self.player1] - self.starting_money[self.player1]
             p2_value = self.current_money[self.player2] + self.bank - self.starting_money[self.player2]
         else:
@@ -169,11 +169,12 @@ class Game(object):
 
     def run(self) -> Player:
         for i in range(self.rounds):
+            print("Round %s\n" %i)
             if i % 2 == 0:
                 first_player, second_player = self.player1, self.player2
             else:
                 first_player, second_player = self.player2, self.player1
-            print("Before round %s player %s have %s and player %s have %s" % (i + 1,
+            print("Before round %s %s have %s and %s have %s" % (i + 1,
                                                                                self.player1.name,
                                                                                self.current_money[self.player1],
                                                                                self.player2.name,
@@ -181,19 +182,21 @@ class Game(object):
             gameround = GameRound(first_player, self.current_money[first_player],
                                   second_player, self.current_money[second_player])
             value1, value2 = gameround.play()
-            print("Player %s won %s and player %s won %s" % (first_player.name, value1, second_player.name, value2))
+            print("%s won %s and %s won %s" % (first_player.name, value1, second_player.name, value2))
             self.current_money[first_player] += value1
             assert self.current_money[first_player] >= 0
             self.current_money[second_player] += value2
             assert self.current_money[second_player] >= 0
-            print("After %s rounds %s got %s and %s got %s" % (i + 1,
+            print("After %s rounds %s got %s and %s got %s\n" % (i + 1,
                                                                self.player1.name,
                                                                self.current_money[self.player1],
                                                                self.player2.name,
                                                                self.current_money[self.player2]))
             if self.current_money[self.player1] < 10:
-                print("Player %s run out of money AND TOTALLY LOST" % self.player1.name)
+                print("Game result:\n")
+                print("After %s rounds player %s run out of money AND TOTALLY LOST\n" % (i + 1, self.player1.name))
                 return self.player2
             if self.current_money[self.player2] < 10:
-                print("Player %s run out of money AND TOTALLY LOST" % self.player2.name)
+                print("Game result:\n")
+                print("After %s rounds player %s run out of money AND TOTALLY LOST\n" % (i + 1, self.player2.name))
                 return self.player1
