@@ -151,7 +151,7 @@ class Game(object):
         self.current_money = {player1: money1, player2: money2}
         self.rounds = rounds
 
-    def run(self):
+    def run(self) -> Player:
         for i in range(self.rounds):
             if i % 2 == 0:
                 first_player, second_player = self.player1, self.player2
@@ -177,7 +177,7 @@ class Game(object):
                                                                self.current_money[self.player2]))
             if self.current_money[self.player1] < 10:
                 print("Player %s run out of money AND TOTALLY LOST" % self.player1.name)
-                break
+                return self.player2
             if self.current_money[self.player2] < 10:
                 print("Player %s run out of money AND TOTALLY LOST" % self.player2.name)
-                break
+                return self.player1

@@ -69,8 +69,16 @@ class SmarterBaseline(Player):
 def main():
     p1 = SmarterBaseline("Misha")
     p2 = BaselinePlayer("Lara")
-    game = Game(p1, 100, p2, 100, rounds=1000)
-    game.run()
+    winners: Dict[Player, int] = {p1: 0, p2: 0}
+    games = 100
+    for i in range(games):
+        game = Game(p1, 100, p2, 100, rounds=1000)
+        winner = game.run()
+        if winner is not None:
+            winners[winner] += 1
+    print("After %s games player %s won %s times and player %s won %s times" % (games,
+                                                                                p1.name, winners[p1],
+                                                                                p2.name, winners[p2]))
 
 
 if __name__ == "__main__":
