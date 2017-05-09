@@ -2,8 +2,7 @@ from storage import Storage, StorageRow
 from casino import Player, Card
 
 
-class B1V1(Player):
-
+class IlariiaPlayer(Player):
     def __init__(self):
         self.storage = Storage()
         self.my = []
@@ -38,10 +37,6 @@ class B1V1(Player):
                 self.is_me_first,
                 self.value)
 
-    @property
-    def name(self) -> str:
-        return "IlariiaB1V1"
-
     def take_card(self, card: Card) -> None:
         self.my_card = card
 
@@ -63,12 +58,11 @@ class B1V1(Player):
         self.opponent.append(card)
 
     def would_change_card(self) -> bool:
-        # Opponent said black, it has red, so I if told black I need change
-        if self.opponent[-1] == self.my[-1]:
-            self.my.append(self._change_card(self.my[-1]))
+        card = self._make_decision()
+        if card != self.my[-1]:
+            self.my.append(card)
             return True
         else:
-            self.my.append(self.my[-1])
             return False
 
     def opponent_card(self, card: Card) -> None:
@@ -82,6 +76,17 @@ class B1V1(Player):
 
     def opponent_changed_card(self):
         self.opponent_said_card(self._change_card(self.opponent[-1]))
+
+    def _make_decision(self) -> Card:
+        raise NotImplementedError()
+
+
+
+class B1V1(IlariiaPlayer):
+
+    @property
+    def name(self) -> str:
+        return "IlariiaB1V1"
 
     def _make_decision(self) -> Card:
         if self.opponent:

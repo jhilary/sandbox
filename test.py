@@ -80,7 +80,8 @@ class SmarterBaseline(Player):
 
 
 def main():
-    p1 = MishaBotV1(10)
+    p1 = B1V1()
+    #p2 = SmarterBaseline("S")
     p2 = BaselinePlayer("Smarter")
     winners: Dict[Player, int] = {p1: 0, p2: 0}
     games = 1000
