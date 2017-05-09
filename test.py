@@ -1,7 +1,8 @@
 import random
-from typing import Optional
+from typing import Optional, Dict
 
 from casino import Player, Card, Action, Game
+from utils import Inteleaving
 
 
 class BaselinePlayer(Player):
@@ -70,7 +71,9 @@ class SmarterBaseline(Player):
 
 
 def main():
-    p1 = SmarterBaseline("Misha")
+    p11 = SmarterBaseline("Misha-smarter")
+    p12 = BaselinePlayer("Misha-base")
+    p1 = Inteleaving("Misha", p11, p12)
     p2 = BaselinePlayer("Lara")
     winners: Dict[Player, int] = {p1: 0, p2: 0}
     games = 100
