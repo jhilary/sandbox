@@ -1,17 +1,17 @@
 from collections import namedtuple
-
+from itertools import zip_longest
 
 class StorageRow(namedtuple("StorageRow", ["my", "opponent", "my_card", "opponent_card", "is_me_first", "value"])):
     def __repr__(self):
         result = ""
         if self.is_me_first:
-            for i in range(len(self.my)):
-                result += "I: %s\n" % self.my[i]
-                result += "O: %s\n" % self.opponent[i]
+            for event1, event2 in zip_longest(self.my, self.opponent):
+                result += "I: %s\n" % event1
+                result += "O: %s\n" % event2
         else:
-            for i in range(len(self.my)):
-                result += "O: %s\n" % self.opponent[i]
-                result += "I: %s\n" % self.my[i]
+            for event1, event2 in zip_longest(self.opponent, self.my):
+                result += "O: %s\n" % event1
+                result += "I: %s\n" % event2
         result += "My guess: %s(%s)\n" % (self.my[-1], self.opponent_card)
         result += "Opponent guess: %s(%s)\n" % (self.opponent[-1], self.my_card)
         result += "Value: %r\n" % self.value

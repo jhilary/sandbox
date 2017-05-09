@@ -52,11 +52,10 @@ class B1V1(Player):
         self.reset()
 
     def say_card(self) -> Card:
-        if self.opponent:
-            new_card = self._make_decision()
-        else:
+        if not self.opponent:
             self.is_me_first = True
-            new_card = self._make_decision()
+
+        new_card = self._make_decision()
         self.my.append(new_card)
         return new_card
 
@@ -110,10 +109,7 @@ if __name__ == "__main__":
     card = player.say_card()
     player.opponent_said_card(Card.BLACK)
     decision = player.would_change_card()
-    player.opponent_changed_card()
     player.opponent_card(Card.BLACK)
-    player.win(10)
     print(player)
-
     player.end_round()
     print(player.storage.print_game(0))

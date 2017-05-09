@@ -108,6 +108,9 @@ class GameRound(object):
             player1.win(p1_value)
             player2.win(p2_value)
 
+            player1.end_round()
+            player2.end_round()
+
             return p1_value, p2_value
         else:
             return self._run_game(player2, player1)
