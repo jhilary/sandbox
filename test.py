@@ -2,7 +2,7 @@ import random
 from typing import Dict
 
 from casino import Player, Card, Game
-from misha import MishaBotV1
+from misha import MishaBotV1, MishaBotV2
 from utils import Inteleaving
 from ilariia import B1V1, B1V2, B1V3, BlackBot
 
@@ -81,7 +81,7 @@ class SmarterBaseline(Player):
 
 def versus(p1, p2):
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 100
+    games = 1000
     rounds = 1000
     print("Start battle %s vs %s\n" % (p1.name, p2.name))
     for i in range(games):
@@ -115,10 +115,14 @@ def main():
     #versus(SmarterBaseline("MishaSmarter"), B1V3(100))
     #versus(BaselinePlayer("MishaBaseline"), B1V3(100))
     #versus(MishaBotV1(10), B1V3(100))
-    versus(B1V1(), B1V3(100))
+    # versus(B1V1(), B1V3(100))
     #versus(BlackBot(), B1V3(100))
     # versus(B1V1(), B1V3(500))
 
+    # versus(MishaBotV1(10), MishaBotV2())
+    versus(MishaBotV1(10), B1V3(100))
+    # versus(MishaBotV2(), BaselinePlayer("Baseline"))
+    # versus(MishaBotV2(), SmarterBaseline("Smarter"))
 
 if __name__ == "__main__":
     main()

@@ -134,11 +134,12 @@ class GameRound(object):
                 self.bank += 10
                 self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
 
-        self.info("%s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
-                                                                                  player_action.name,
-                                                                                  self.bids[player].name,
-                                                                                  self.current_money[player],
-                                                                                  self.bank))
+        if player_action != Action.PASS:
+            self.info("%s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
+                                                                                      player_action.name,
+                                                                                      self.bids[player].name,
+                                                                                      self.current_money[player],
+                                                                                      self.bank))
         return player_action
 
     def _resolve(self) -> (int, int):
