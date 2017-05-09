@@ -1,7 +1,12 @@
 import random
 from typing import Dict
 
+<<<<<<< Updated upstream
 from casino import Player, Card, Game
+=======
+from bot1 import BotIlariiaV1
+from casino import Player, Card, Action, Game
+>>>>>>> Stashed changes
 from utils import Inteleaving
 from ilariia import B1V1
 
@@ -84,7 +89,7 @@ def main():
     p1 = Inteleaving("Misha", p11, p12)
     p2 = B1V1()
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 100
+    games = 1000
     for i in range(games):
         game = Game(p1, 100, p2, 100, rounds=1000)
         winner = game.run()
