@@ -10,25 +10,25 @@ class BaselinePlayer(Player):
         self._name = name
         self._my_card = None
 
-    def make_first_bid(self) -> Card:
+    def say_card(self) -> Card:
         return random.choice([Card.RED, Card.BLACK])
 
-    def make_response_bid(self, opponents_bid: Card) -> Card:
-        return self.make_first_bid()
+    def opponent_said_card(self, opponents_bid: Card) -> None:
+        return None
 
-    def make_first_action(self, opponents_bid: Card) -> Action:
-        return random.choice([Action.PASS, Action.CHANGE])
+    def would_change_card(self) -> bool:
+        return random.choice([True, False])
 
-    def make_response_action(self, opponents_action: Action) -> Action:
-        return random.choice([Action.PASS, Action.CHANGE])
-
-    def notify_about_last_action(self, opponents_action: Optional[Action]):
+    def opponent_changed_card(self) -> None:
         pass
 
-    def notify_about_value(self, value):
+    def win(self, value):
         pass
 
-    def deal(self, card: Card) -> None:
+    def end_round(self):
+        pass
+
+    def take_card(self, card: Card) -> None:
         self._my_card = card
 
     @property
@@ -40,34 +40,37 @@ class SmarterBaseline(Player):
     def __init__(self, name):
         self._name = name
         self._my_card = None
-
-    def make_first_bid(self) -> Card:
-        if self._my_card == Card.RED:
-            return Card.BLACK
-        else:
-            return Card.RED
-
-    def make_first_action(self, opponents_bid: Card) -> Action:
-        return Action.PASS
-
-    def deal(self, card: Card) -> None:
-        self._my_card = card
+        self._opponent_card = None
 
     @property
     def name(self) -> str:
         return self._name
 
-    def make_response_action(self, opponents_action: Action) -> Action:
-        return Action.PASS
+    def take_card(self, card: Card) -> None:
+        self._my_card = card
 
-    def make_response_bid(self, opponents_bid: Card) -> Card:
-        return self.make_first_bid()
+    def say_card(self) -> Card:
+        if self._my_card == Card.RED:
+            return Card.BLACK
+        else:
+            return Card.RED
 
-    def notify_about_last_action(self, opponents_action: Optional[Action]) -> None:
+    def opponent_said_card(self, opponents_bid: Card) -> None:
+        self._opponent_card = opponents_bid
+
+    def would_change_card(self) -> bool:
+        return False
+
+    def opponent_changed_card(self) -> None:
+        self._opponent_card = Card.BLACK if self._opponent_card == Card.RED else Card.RED
+
+    def win(self, value) -> None:
         pass
 
-    def notify_about_value(self, value) -> None:
+    def end_round(self) -> None:
         pass
+
+
 
 
 def main():

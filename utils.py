@@ -1,7 +1,6 @@
 import random
-from typing import Optional
 
-from casino import Player, Card, Action
+from casino import Player, Card
 
 
 class Inteleaving(Player):
@@ -10,28 +9,25 @@ class Inteleaving(Player):
         self._strategies = strategies
         self._current_strategy: Player = random.choice(self._strategies)
 
-    def notify_about_value(self, value) -> None:
-        self._current_strategy.notify_about_value(value)
+    def win(self, value) -> None:
+        self._current_strategy.win(value)
 
-    def make_first_action(self, opponents_bid: Card) -> Action:
-        return self._current_strategy.make_first_action(opponents_bid)
+    def would_change_card(self) -> bool:
+        return self._current_strategy.would_change_card()
 
-    def make_first_bid(self) -> Card:
-        return self._current_strategy.make_first_bid()
+    def say_card(self) -> Card:
+        return self._current_strategy.say_card()
 
-    def deal(self, card: Card) -> None:
+    def take_card(self, card: Card) -> None:
         self._current_strategy: Player = random.choice(self._strategies)
-        self._current_strategy.deal(card)
+        self._current_strategy.take_card(card)
 
     @property
     def name(self) -> str:
         return self._name
 
-    def notify_about_last_action(self, opponents_action: Optional[Action]) -> None:
-        self._current_strategy.notify_about_last_action(opponents_action)
+    def opponent_changed_card(self) -> None:
+        return self._current_strategy.opponent_changed_card()
 
-    def make_response_action(self, opponents_action: Action) -> Action:
-        return self._current_strategy.make_response_action(opponents_action)
-
-    def make_response_bid(self, opponents_bid: Card) -> Card:
-        return self._current_strategy.make_response_bid(opponents_bid)
+    def opponent_said_card(self, card: Card) -> None:
+        return self._current_strategy.opponent_said_card(card)

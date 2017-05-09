@@ -13,7 +13,6 @@ class Action(Enum):
     PASS = "PASS"
     CHANGE = "CHANGE"
 
-
 class Player(object):
     __metaclass__ = ABCMeta
 
@@ -23,31 +22,31 @@ class Player(object):
         raise NotImplementedError()
 
     @abstractmethod
-    def deal(self, card: Card) -> None:
+    def take_card(self, card: Card) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def make_first_bid(self) -> Card:
+    def say_card(self) -> Card:
         raise NotImplementedError()
 
     @abstractmethod
-    def make_response_bid(self, opponents_bid: Card) -> Card:
+    def opponent_said_card(self, card: Card) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def make_first_action(self, opponents_bid: Card) -> Action:
+    def would_change_card(self) -> bool:
         raise NotImplementedError()
 
     @abstractmethod
-    def make_response_action(self, opponents_action: Action) -> Action:
+    def opponent_changed_card(self) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def notify_about_last_action(self, opponents_action: Optional[Action]) -> None:
+    def end_round(self) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def notify_about_value(self, value) -> None:
+    def win(self, value) -> None:
         raise NotImplementedError()
 
 
@@ -66,16 +65,20 @@ class GameRound(object):
 
         card1, card2 = random.sample(self.CARDS, 2)
         self.cards: Dict[Player, Card] = {self.player1: card1, self.player2: card2}
-        self.player1.deal(card1)
+        self.player1.take_card(card1)
         print("Player %s got card %s" % (self.player1.name, card1.name))
-        self.player2.deal(card2)
+        self.player2.take_card(card2)
         print("Player %s got card %s" % (self.player2.name, card2.name))
 
         self.bank += 20
         self.current_money[self.player1] -= 10
         self.current_money[self.player2] -= 10
-        self.bids: Dict[Player, Card] = {self.player1: self.player1.make_first_bid()}
-        self.bids[self.player2] = self.player1.make_response_bid(self.bids[self.player1])
+        self.bids: Dict[Player, Card] = {}
+
+        self.bids[self.player1] = self.player1.say_card()
+        self.player2.opponent_said_card(self.bids[self.player1])
+        self.bids[self.player2] = self.player2.say_card()
+        self.player1.opponent_said_card(self.bids[self.player2])
 
         print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player1.name, self.bids[player1].name,
                                                                         self.current_money[player1],
@@ -90,35 +93,33 @@ class GameRound(object):
 
     def _run_game(self, player1: Player, player2: Player):
         action = self._make_action(player1, player2)
+
+        print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player1.name,
+                                                                                     action.name,
+                                                                                     self.bids[player1].name,
+                                                                                     self.current_money[player1],
+                                                                                     self.bank))
+
         if action == Action.PASS:
             self._make_action(player2, player1)
-            player1.notify_about_last_action(self.last_action)
-            player2.notify_about_last_action(None)
             p1_value, p2_value = self._resolve()
-            self.player1.notify_about_value(p1_value)
-            self.player1.notify_about_value(p2_value)
+            self.player1.win(p1_value)
+            self.player1.win(p2_value)
             return p1_value, p2_value
         else:
             return self._run_game(player2, player1)
 
     def _make_action(self, player: Player, opponent: Player) -> Action:
         if self.current_money[player] < 10:
-            self.last_action = Action.PASS
+            return Action.PASS
         else:
-            if self.last_action is None:
-                self.last_action = player.make_first_action(self.bids[opponent])
-            else:
-                self.last_action = player.make_response_action(self.last_action)
-            if self.last_action == Action.CHANGE:
+            player_action = Action.CHANGE if player.would_change_card() else Action.PASS
+            if player_action == Action.CHANGE:
+                opponent.opponent_changed_card()
                 self.current_money[player] -= 10
                 self.bank += 10
                 self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
-        print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
-                                                                                     self.last_action.name,
-                                                                                     self.bids[player].name,
-                                                                                     self.current_money[player],
-                                                                                     self.bank))
-        return self.last_action
+            return player_action
 
     def _resolve(self) -> (int, int):
         p1_correct = self.bids[self.player1] == self.cards[self.player2]
