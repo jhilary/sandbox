@@ -81,7 +81,7 @@ class SmarterBaseline(Player):
 def main():
     p11 = SmarterBaseline("Misha-smarter")
     p12 = BaselinePlayer("Misha-base")
-    p1 = Inteleaving("Misha", p11, p12)
+    p1 = BaselinePlayer("Misha-base") #Inteleaving("Misha", p11, p12)
     p2 = B1V1()
     winners: Dict[Player, int] = {p1: 0, p2: 0}
     games = 1000

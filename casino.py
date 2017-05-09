@@ -98,12 +98,6 @@ class GameRound(object):
     def _run_game(self, player1: Player, player2: Player):
         action = self._make_action(player1, player2)
 
-        print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player1.name,
-                                                                                     action.name,
-                                                                                     self.bids[player1].name,
-                                                                                     self.current_money[player1],
-                                                                                     self.bank))
-
         if action == Action.PASS:
             self._make_action(player2, player1)
             p1_value, p2_value = self._resolve()
@@ -120,7 +114,7 @@ class GameRound(object):
 
     def _make_action(self, player: Player, opponent: Player) -> Action:
         if self.current_money[player] < 10:
-            return Action.PASS
+            player_action = Action.PASS
         else:
             player_action = Action.CHANGE if player.would_change_card() else Action.PASS
             if player_action == Action.CHANGE:
@@ -128,7 +122,13 @@ class GameRound(object):
                 self.current_money[player] -= 10
                 self.bank += 10
                 self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
-            return player_action
+
+        print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
+                                                                                     player_action.name,
+                                                                                     self.bids[player].name,
+                                                                                     self.current_money[player],
+                                                                                     self.bank))
+        return player_action
 
     def _resolve(self) -> (int, int):
         p1_correct = self.bids[self.player1] == self.cards[self.player2]
@@ -146,7 +146,7 @@ class GameRound(object):
             p1_value = self.current_money[self.player1] + self.bank - self.starting_money[self.player1]
             p2_value = self.current_money[self.player2] - self.starting_money[self.player2]
         elif not p1_correct and p2_correct:
-            print("Player %s guessed right and player %s guessed wrong" % (self.player2.name, self.player2.name))
+            print("Player %s guessed right and player %s guessed wrong" % (self.player2.name, self.player1.name))
             p1_value = self.current_money[self.player1] - self.starting_money[self.player1]
             p2_value = self.current_money[self.player2] + self.bank - self.starting_money[self.player2]
         else:
