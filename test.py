@@ -27,10 +27,7 @@ class BaselinePlayer(Player):
     def notify_about_value(self, value):
         pass
 
-    def tell_result(self, value: int) -> None:
-        self._my_card = None
-
-    def deal(self, card: str) -> None:
+    def deal(self, card: Card) -> None:
         self._my_card = card
 
     @property
@@ -38,8 +35,42 @@ class BaselinePlayer(Player):
         return self._name
 
 
+class SmarterBaseline(Player):
+    def __init__(self, name):
+        self._name = name
+        self._my_card = None
+
+    def make_first_bid(self) -> Card:
+        if self._my_card == RED:
+            return BLACK
+        else:
+            return RED
+
+    def make_first_action(self, opponents_bid: Card) -> Action:
+        return PASS
+
+    def deal(self, card: Card) -> None:
+        self._my_card = card
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def make_response_action(self, opponents_action: Action) -> Action:
+        return PASS
+
+    def make_response_bid(self, opponents_bid: Card) -> Card:
+        return self.make_first_bid()
+
+    def notify_about_last_action(self, opponents_action: Optional[Action]) -> None:
+        pass
+
+    def notify_about_value(self, value) -> None:
+        pass
+
+
 def main():
-    p1 = BaselinePlayer("Misha")
+    p1 = SmarterBaseline("Misha")
     p2 = BaselinePlayer("Lara")
     game = Game(p1, 100, p2, 100, rounds=1000)
     game.run()
