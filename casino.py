@@ -1,6 +1,6 @@
 import random
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Optional
+from typing import Dict
 from enum import Enum
 
 
@@ -12,6 +12,7 @@ class Card(Enum):
 class Action(Enum):
     PASS = "PASS"
     CHANGE = "CHANGE"
+
 
 class Player(object):
     __metaclass__ = ABCMeta
