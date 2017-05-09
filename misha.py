@@ -1,5 +1,7 @@
 from collections import namedtuple
 from itertools import product
+import random
+from pprint import pprint
 
 from casino import Player, Card
 
@@ -47,22 +49,27 @@ class MishaBotV1(Player):
             #                                                                              self._op_said_card,
             #                                                                              self._op_changed_card,
             #                                                                              self._my_said_card))
+            self._my_said_card = self._invert_card(self._my_said_card)
             return True
         else:
             return False
 
     def say_card(self) -> Card:
-        p_opcard_red_cond_all = self._p_opcard_cond_all(Card.RED)
-        p_opcard_black_cond_all = self._p_opcard_cond_all(Card.BLACK)
-        self._my_said_card = Card.RED if p_opcard_red_cond_all > p_opcard_black_cond_all else Card.BLACK
+        if self._op_said_card is None:
+            self._my_said_card = random.choice([Card.BLACK, Card.RED])
+        else:
+            p_opcard_red_cond_all = self._p_opcard_cond_all(Card.RED)
+            # self._my_said_card = Card.RED if random.random() < p_opcard_red_cond_all else Card.BLACK
+            p_opcard_black_cond_all = self._p_opcard_cond_all(Card.BLACK)
+            self._my_said_card = Card.RED if p_opcard_red_cond_all > p_opcard_black_cond_all else Card.BLACK
         return self._my_said_card
 
     def _p_opcard_cond_all(self, opcard):
-        # p_all_marg = self._marg_p(mycard=self._my_card, opsaid=self._op_said_card, changed=self._op_changed_card)
+        p_all_marg = self._marg_p(mycard=self._my_card, opsaid=self._op_said_card, changed=self._op_changed_card)
         p_all_cond_opcard = self._cond_p(opcard=opcard, mycard=self._my_card,
                                          opsaid=self._op_said_card, changed=self._op_changed_card)
-        # p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
-        return p_all_cond_opcard
+        p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
+        return p_opcard_cond_all
 
     def _marg_p(self, mycard=None, opsaid=None, changed=None, opcard=None):
         mycard = [Card.RED, Card.BLACK] if mycard is None else [mycard]
@@ -99,6 +106,50 @@ class MishaBotV1(Player):
         if is_changed:
             self._op_changed_card = True
             self._op_said_card = self._invert_card(self._op_said_card)
+
+    def opponent_said_card(self, card: Card) -> None:
+        self._op_said_card = card
+
+    @staticmethod
+    def _invert_card(card: Card):
+        if card == Card.RED:
+            return Card.BLACK
+        else:
+            return Card.RED
+
+
+class MishaBotV2(Player):
+    def __init__(self):
+        self._op_said_card = None
+        self._my_card = None
+
+    def win(self, value) -> None:
+        pass
+
+    def opponent_card(self, card) -> None:
+        pass
+
+    def would_change_card(self) -> bool:
+        return False
+
+    def say_card(self) -> Card:
+        if self._op_said_card is not None:
+            return self._invert_card(self._op_said_card)
+        else:
+            return random.choice([Card.BLACK, Card.RED])
+
+    def take_card(self, card: Card) -> None:
+        self._my_card = card
+
+    @property
+    def name(self) -> str:
+        return self.__class__.__name__
+
+    def end_round(self) -> None:
+        self._op_said_card = None
+
+    def opponent_change_card(self, is_changed: bool) -> None:
+        pass
 
     def opponent_said_card(self, card: Card) -> None:
         self._op_said_card = card
