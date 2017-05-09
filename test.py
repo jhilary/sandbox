@@ -4,7 +4,7 @@ from typing import Dict
 from casino import Player, Card, Game
 from misha import MishaBotV1
 from utils import Inteleaving
-from ilariia import B1V1, B1V2, B1V3
+from ilariia import B1V1, B1V2, B1V3, BlackBot
 
 
 class BaselinePlayer(Player):
@@ -89,6 +89,8 @@ def versus(p1, p2):
         winner = game.run()
         if winner is not None:
             winners[winner] += 1
+            # print("%s winning rate: %f" % (p1.name, float(winners[p1]) / ( i + 1)))
+            # print("%s winning rate: %f" % (p2.name, float(winners[p2]) / ( i + 1)))
 
     print("Battle result:\n")
     print("After %s games %s won %d times and %s won %d times" % (games,
@@ -109,7 +111,14 @@ def main():
     # versus(B1V2(100), B1V3(100))
     # versus(MishaBotV1(10), BaselinePlayer("MishaBaseline"))
     # versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
-    versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
+    # versus(MishaBotV1(10), B1V3(500))
+    #versus(SmarterBaseline("MishaSmarter"), B1V3(100))
+    #versus(BaselinePlayer("MishaBaseline"), B1V3(100))
+    #versus(MishaBotV1(10), B1V3(100))
+    versus(B1V1(), B1V3(100))
+    #versus(BlackBot(), B1V3(100))
+    # versus(B1V1(), B1V3(500))
+
 
 if __name__ == "__main__":
     main()

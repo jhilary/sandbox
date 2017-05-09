@@ -58,10 +58,11 @@ class IlariiaPlayer(Player):
 
     def would_change_card(self) -> bool:
         card = self._make_decision()
-        self.my.append(card)
         if card != self.my[-1]:
+            self.my.append(card)
             return True
         else:
+            self.my.append(card)
             return False
 
     def opponent_card(self, card: Card) -> None:
@@ -81,6 +82,16 @@ class IlariiaPlayer(Player):
 
     def _make_decision(self) -> Card:
         raise NotImplementedError()
+
+
+class BlackBot(IlariiaPlayer):
+
+    @property
+    def name(self) -> str:
+        return "BlackBot"
+
+    def _make_decision(self) -> Card:
+        return Card.BLACK
 
 
 class B1V1(IlariiaPlayer):
@@ -113,7 +124,7 @@ class B1V2(IlariiaPlayer):
         super(B1V2, self).__init__()
         self.counter = 0
         self.learning_time = learning_time
-        self.historic_base = None
+        self.historic_base = {}
 
     @property
     def name(self) -> str:
@@ -139,14 +150,19 @@ class B1V2(IlariiaPlayer):
 
     def _historic_base_strategy(self):
 
-        if self.historic_base is None:
-            self.historic_base = self._generate_historic_base()
-
         sequence = list_sequence(self.my, self.opponent)
-        choose_red = tuple(sequence + [Card.RED])
-        choose_black = tuple(sequence + [Card.BLACK])
 
-        if self.historic_base[choose_red] > self.historic_base[choose_black]:
+        choose_red = tuple([self.my_card] + sequence + [Card.RED])
+        choose_black = tuple([self.my_card] + sequence + [Card.BLACK])
+
+
+        M_red, C_red = self.historic_base.get(choose_red, (0, 1))
+        M_black, C_black = self.historic_base.get(choose_black, (0, 1))
+
+        # print(choose_red, M_red, C_red)
+        # print(choose_black, M_black, C_black)
+
+        if M_red/C_red > M_black/C_black:
             return Card.RED
         else:
             return Card.BLACK
@@ -158,16 +174,18 @@ class B1V2(IlariiaPlayer):
         else:
             return self._learn_strategy()
 
-    def _generate_historic_base(self):
-
-        strategy = defaultdict(int)
-        for r in self.storage:
-            i = 0
-            while i <= len(r.sequence):
-                strategy[tuple(r.sequence[: (i+1)])] += r.value
-                i += 2
-
-        return strategy
+    def win(self, value) -> None:
+        self.value = value
+        sequence = list_sequence(self.my, self.opponent)
+        i = 0
+        while i < len(sequence):
+            key = tuple([self.my_card] + sequence[: (i + 1)])
+            if key not in self.historic_base:
+                new_value = (value, 1)
+            else:
+                new_value = (self.historic_base[key][0] + value, self.historic_base[key][1] + 1)
+            self.historic_base[key] = new_value
+            i += 2
 
 
 class B1V3(B1V2):
@@ -177,6 +195,12 @@ class B1V3(B1V2):
 
     def _learn_strategy(self):
         return random.choice([Card.RED, Card.BLACK])
+
+    # def would_change_card(self):
+    #     result = super(B1V3, self).would_change_card()
+    #     print(result)
+    #     return result
+
 
 
 if __name__ == "__main__":

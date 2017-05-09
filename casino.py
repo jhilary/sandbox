@@ -101,6 +101,13 @@ class GameRound(object):
 
     def play(self) -> (int, int):
         value1, value2 = self._run_game(self.player1, self.player2)
+
+        self.player1.win(value1)
+        self.player2.win(value2)
+
+        self.player1.end_round()
+        self.player2.end_round()
+
         return value1, value2
 
     def _run_game(self, player1: Player, player2: Player):
@@ -108,18 +115,11 @@ class GameRound(object):
 
         if action == Action.PASS:
             self._make_action(player2, player1)
-            p1_value, p2_value = self._resolve()
 
             player1.opponent_card(self.cards[player2])
             player2.opponent_card(self.cards[player1])
 
-            player1.win(p1_value)
-            player2.win(p2_value)
-
-            player1.end_round()
-            player2.end_round()
-
-            return p1_value, p2_value
+            return self._resolve()
         else:
             return self._run_game(player2, player1)
 
