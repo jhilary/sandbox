@@ -1,11 +1,10 @@
 import random
-from pprint import pprint
 from typing import Dict
 
 from casino import Player, Card, Game
 from misha import MishaBotV1
 from utils import Inteleaving
-from ilariia import B1V1
+from ilariia import B1V1, B1V2, B1V3
 
 
 class BaselinePlayer(Player):
@@ -22,7 +21,7 @@ class BaselinePlayer(Player):
     def would_change_card(self) -> bool:
         return random.choice([True, False])
 
-    def opponent_changed_card(self) -> None:
+    def opponent_change_card(self, is_changed: bool) -> None:
         pass
 
     def win(self, value):
@@ -67,7 +66,7 @@ class SmarterBaseline(Player):
     def would_change_card(self) -> bool:
         return False
 
-    def opponent_changed_card(self) -> None:
+    def opponent_change_card(self, is_changed: bool) -> None:
         self._opponent_card = Card.BLACK if self._opponent_card == Card.RED else Card.RED
 
     def win(self, value: int) -> None:
@@ -80,11 +79,9 @@ class SmarterBaseline(Player):
         pass
 
 
-def main():
-    p1 = MishaBotV1(10)
-    p2 = B1V1()
+def versus(p1, p2):
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 1000
+    games = 100
     rounds = 1000
     print("Start battle %s vs %s\n" % (p1.name, p2.name))
     for i in range(games):
@@ -99,7 +96,20 @@ def main():
                                                                   p2.name, winners[p2]))
     print("%s winning rate: %f" % (p1.name, float(winners[p1])/games))
     print("%s winning rate: %f" % (p2.name, float(winners[p2])/games))
+    print("\n")
 
+
+def main():
+    # versus(B1V2(100), B1V1())
+    # versus(B1V3(100), B1V1())
+    # versus(B1V2(100), SmarterBaseline("MishaSmarter"))
+    # versus(B1V2(100), BaselinePlayer("MishaBaseline"))
+    # versus(B1V3(100), SmarterBaseline("MishaSmarter"))
+    # versus(B1V3(100), BaselinePlayer("MishaBaseline"))
+    # versus(B1V2(100), B1V3(100))
+    # versus(MishaBotV1(10), BaselinePlayer("MishaBaseline"))
+    # versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
+    versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
 
 if __name__ == "__main__":
     main()

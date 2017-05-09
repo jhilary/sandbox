@@ -95,9 +95,10 @@ class MishaBotV1(Player):
         self.marginal_counters[history] += 1
         self._number_of_rounds += 1
 
-    def opponent_changed_card(self) -> None:
-        self._op_changed_card = True
-        self._op_said_card = self._invert_card(self._op_said_card)
+    def opponent_change_card(self, is_changed: bool) -> None:
+        if is_changed:
+            self._op_changed_card = True
+            self._op_said_card = self._invert_card(self._op_said_card)
 
     def opponent_said_card(self, card: Card) -> None:
         self._op_said_card = card

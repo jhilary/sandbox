@@ -26,8 +26,8 @@ class Inteleaving(Player):
     def name(self) -> str:
         return self._name
 
-    def opponent_changed_card(self) -> None:
-        self._current_strategy.opponent_changed_card()
+    def opponent_changed_card(self, is_changed: bool) -> None:
+        self._current_strategy.opponent_change_card(is_changed)
 
     def opponent_said_card(self, card: Card) -> None:
         self._current_strategy.opponent_said_card(card)
