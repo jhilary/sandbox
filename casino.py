@@ -21,11 +21,7 @@ class Player(object):
         raise NotImplementedError()
 
     @abstractmethod
-    def deal(self, card: str) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def tell_result(self, value: int) -> None:
+    def deal(self, card: Card) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -88,8 +84,6 @@ class GameRound(object):
 
     def play(self) -> (int, int):
         value1, value2 = self._run_game(self.player1, self.player2)
-        self.player1.tell_result(value1)
-        self.player2.tell_result(value2)
         return value1, value2
 
     def _run_game(self, player1: Player, player2: Player):
@@ -137,13 +131,16 @@ class GameRound(object):
             print("Both player guessed right")
         elif p1_correct and not p2_correct:
             print("Player %s guessed right and player %s guessed wrong" % (self.player1.name, self.player2.name))
-            p1_value, p2_value = self.bank / 2, -self.bank / 2
+            p1_value = self.current_money[self.player1] + self.bank - self.starting_money[self.player1]
+            p2_value = self.current_money[self.player2] - self.starting_money[self.player2]
         elif not p1_correct and p2_correct:
             print("Player %s guessed right and player %s guessed wrong" % (self.player2.name, self.player2.name))
-            p1_value, p2_value = -self.bank / 2, self.bank / 2
+            p1_value = self.current_money[self.player1] - self.starting_money[self.player1]
+            p2_value = self.current_money[self.player2] + self.bank - self.starting_money[self.player2]
         else:
             print("Both player guessed wrong")
             p1_value, p2_value = 0, 0
+        assert p1_value + p2_value == 0, (p1_value, p2_value)
         return p1_value, p2_value
 
 
