@@ -41,13 +41,13 @@ class SmarterBaseline(Player):
         self._my_card = None
 
     def make_first_bid(self) -> Card:
-        if self._my_card == RED:
-            return BLACK
+        if self._my_card == Card.RED:
+            return Card.BLACK
         else:
-            return RED
+            return Card.RED
 
     def make_first_action(self, opponents_bid: Card) -> Action:
-        return PASS
+        return Action.PASS
 
     def deal(self, card: Card) -> None:
         self._my_card = card
@@ -57,7 +57,7 @@ class SmarterBaseline(Player):
         return self._name
 
     def make_response_action(self, opponents_action: Action) -> Action:
-        return PASS
+        return Action.PASS
 
     def make_response_bid(self, opponents_bid: Card) -> Card:
         return self.make_first_bid()
