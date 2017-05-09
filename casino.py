@@ -39,7 +39,7 @@ class Player(object):
         raise NotImplementedError()
 
     @abstractmethod
-    def opponent_changed_card(self) -> None:
+    def opponent_change_card(self, is_changed: bool) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -128,8 +128,8 @@ class GameRound(object):
             player_action = Action.PASS
         else:
             player_action = Action.CHANGE if player.would_change_card() else Action.PASS
+            opponent.opponent_change_card(player_action == Action.CHANGE)
             if player_action == Action.CHANGE:
-                opponent.opponent_changed_card()
                 self.current_money[player] -= 10
                 self.bank += 10
                 self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
@@ -150,7 +150,7 @@ class GameRound(object):
             value = self.bank / 2
             p1_value = self.current_money[self.player1] + value - self.starting_money[self.player1]
             p2_value = self.current_money[self.player2] + value - self.starting_money[self.player2]
-            assert p1_value + p2_value == 0, (p1_value, p2_value)
+            assert p1_value + p2_value == 0.0, (p1_value, p2_value)
             self.info("Both player guessed right")
         elif p1_correct and not p2_correct:
             self.info("%s guessed right and %s guessed wrong" % (self.player1.name, self.player2.name))
@@ -162,8 +162,8 @@ class GameRound(object):
             p2_value = self.current_money[self.player2] + self.bank - self.starting_money[self.player2]
         else:
             self.info("Both player guessed wrong")
-            p1_value, p2_value = 0, 0
-        assert p1_value + p2_value == 0, (p1_value, p2_value)
+            p1_value, p2_value = 0.0, 0.0
+        assert p1_value + p2_value == 0.0, (p1_value, p2_value)
         return p1_value, p2_value
 
 
