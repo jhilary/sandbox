@@ -1,6 +1,7 @@
 from collections import namedtuple
 from itertools import zip_longest
 
+
 class StorageRow(namedtuple("StorageRow", ["my", "opponent", "my_card", "opponent_card", "is_me_first", "value"])):
     def __repr__(self):
         result = ""

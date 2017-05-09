@@ -83,16 +83,20 @@ def main():
     p1 = MishaBotV1(10)
     p2 = BaselinePlayer("Smarter")
     winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 100
-    for i in range(games):
-        game = Game(p1, 100, p2, 100, rounds=1000)
+    rounds = 1000
+    print("Start battle %s vs %s\n" % (p1.name, p2.name))
+    for i in range(rounds):
+        game = Game(p1, 100, p2, 100, rounds=rounds, debug=False)
         winner = game.run()
         if winner is not None:
             winners[winner] += 1
-    print("After %s games player %s won %s times and player %s won %s times" % (games,
-                                                                                p1.name, winners[p1],
-                                                                                p2.name, winners[p2]))
-    print(p1.counters)
+
+    print("Battle result:\n")
+    print("After %s games %s won %d times and %s won %d times" % (rounds,
+                                                                  p1.name, winners[p1],
+                                                                  p2.name, winners[p2]))
+    print("%s winning rate: %f" % (p1.name, float(winners[p1])/rounds))
+    print("%s winning rate: %f" % (p2.name, float(winners[p2])/rounds))
 
 
 if __name__ == "__main__":
