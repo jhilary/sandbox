@@ -35,18 +35,18 @@ class MishaBotV1(Player):
         pass
 
     def would_change_card(self) -> bool:
-        return False
+        # return False
         if self._op_said_card != self._my_card:
             return False
 
         current_prob = self._p_opcard_cond_all(self._my_said_card)
         alt_prob = self._p_opcard_cond_all(self._invert_card(self._my_said_card))
         if alt_prob > current_prob:
-            print("Changing card. New prob is %s, old prob is %s" % (alt_prob, current_prob))
-            print("Current state: mycard %s, opsaid %s, changed %s, my_said_card: %s" % (self._my_card,
-                                                                                         self._op_said_card,
-                                                                                         self._op_changed_card,
-                                                                                         self._my_said_card))
+            # print("Changing card. New prob is %s, old prob is %s" % (alt_prob, current_prob))
+            # print("Current state: mycard %s, opsaid %s, changed %s, my_said_card: %s" % (self._my_card,
+            #                                                                              self._op_said_card,
+            #                                                                              self._op_changed_card,
+            #                                                                              self._my_said_card))
             return True
         else:
             return False
@@ -58,11 +58,11 @@ class MishaBotV1(Player):
         return self._my_said_card
 
     def _p_opcard_cond_all(self, opcard):
-        p_all_marg = self._marg_p(mycard=self._my_card, opsaid=self._op_said_card, changed=self._op_changed_card)
+        # p_all_marg = self._marg_p(mycard=self._my_card, opsaid=self._op_said_card, changed=self._op_changed_card)
         p_all_cond_opcard = self._cond_p(opcard=opcard, mycard=self._my_card,
                                          opsaid=self._op_said_card, changed=self._op_changed_card)
-        p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
-        return p_opcard_cond_all
+        # p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
+        return p_all_cond_opcard
 
     def _marg_p(self, mycard=None, opsaid=None, changed=None, opcard=None):
         mycard = [Card.RED, Card.BLACK] if mycard is None else [mycard]
@@ -84,7 +84,10 @@ class MishaBotV1(Player):
         return count / total
 
     def end_round(self) -> None:
-        pass
+        self._op_said_card = None
+        self._op_changed_card = None
+        self._my_card = None
+        self._my_said_card = None
 
     def opponent_card(self, card) -> None:
         changed = False if self._op_changed_card is None else self._op_changed_card
