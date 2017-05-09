@@ -46,6 +46,10 @@ class Player(object):
         raise NotImplementedError()
 
     @abstractmethod
+    def opponent_card(self, card) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
     def win(self, value) -> None:
         raise NotImplementedError()
 
@@ -103,8 +107,13 @@ class GameRound(object):
         if action == Action.PASS:
             self._make_action(player2, player1)
             p1_value, p2_value = self._resolve()
-            self.player1.win(p1_value)
-            self.player1.win(p2_value)
+
+            player1.opponent_card(self.cards[player2])
+            player2.opponent_card(self.cards[player1])
+
+            player1.win(p1_value)
+            player2.win(p2_value)
+
             return p1_value, p2_value
         else:
             return self._run_game(player2, player1)

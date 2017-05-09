@@ -1,8 +1,9 @@
 import random
-from typing import Optional, Dict
+from typing import Dict
 
-from casino import Player, Card, Action, Game
+from casino import Player, Card, Game
 from utils import Inteleaving
+from ilariia import B1V1
 
 
 class BaselinePlayer(Player):
@@ -30,6 +31,9 @@ class BaselinePlayer(Player):
 
     def take_card(self, card: Card) -> None:
         self._my_card = card
+
+    def opponent_card(self, card: Card) -> None:
+        pass
 
     @property
     def name(self) -> str:
@@ -64,20 +68,21 @@ class SmarterBaseline(Player):
     def opponent_changed_card(self) -> None:
         self._opponent_card = Card.BLACK if self._opponent_card == Card.RED else Card.RED
 
-    def win(self, value) -> None:
+    def win(self, value: int) -> None:
+        pass
+
+    def opponent_card(self, card: Card) -> None:
         pass
 
     def end_round(self) -> None:
         pass
 
 
-
-
 def main():
     p11 = SmarterBaseline("Misha-smarter")
     p12 = BaselinePlayer("Misha-base")
     p1 = Inteleaving("Misha", p11, p12)
-    p2 = BaselinePlayer("Lara")
+    p2 = B1V1()
     winners: Dict[Player, int] = {p1: 0, p2: 0}
     games = 100
     for i in range(games):

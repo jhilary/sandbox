@@ -12,8 +12,8 @@ class StorageRow(namedtuple("StorageRow", ["my", "opponent", "my_card", "opponen
             for i in range(len(self.my)):
                 result += "O: %s\n" % self.opponent[i]
                 result += "I: %s\n" % self.my[i]
-        result += "My guess: %s(%s)\n" % (self.my[-2], self.opponent_card)
-        result += "Opponent guess: %s(%s)\n" % (self.opponent[-2], self.my_card)
+        result += "My guess: %s(%s)\n" % (self.my[-1], self.opponent_card)
+        result += "Opponent guess: %s(%s)\n" % (self.opponent[-1], self.my_card)
         result += "Value: %r\n" % self.value
         return result
 
