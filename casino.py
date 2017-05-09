@@ -1,15 +1,17 @@
 import random
-from collections import namedtuple
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Optional
+from enum import Enum
 
-Card = namedtuple("Card", "color")
-RED = Card("RED")
-BLACK = Card("BLACK")
 
-Action = namedtuple("Action", "name")
-PASS = Action("PASS")
-CHANGE = Action("CHANGE")
+class Card(Enum):
+    RED = "RED"
+    BLACK = "BLACK"
+
+
+class Action(Enum):
+    PASS = "PASS"
+    CHANGE = "CHANGE"
 
 
 class Player(object):
@@ -50,7 +52,7 @@ class Player(object):
 
 
 class GameRound(object):
-    CARDS = [RED, RED, BLACK, BLACK]
+    CARDS = [Card.RED, Card.RED, Card.BLACK, Card.BLACK]
 
     def __init__(self, player1: Player, money1: int, player2: Player, money2: int):
         assert money1 >= 10, money1
@@ -65,9 +67,9 @@ class GameRound(object):
         card1, card2 = random.sample(self.CARDS, 2)
         self.cards: Dict[Player, Card] = {self.player1: card1, self.player2: card2}
         self.player1.deal(card1)
-        print("Player %s got card %s" % (self.player1.name, card1.color))
+        print("Player %s got card %s" % (self.player1.name, card1.name))
         self.player2.deal(card2)
-        print("Player %s got card %s" % (self.player2.name, card2.color))
+        print("Player %s got card %s" % (self.player2.name, card2.name))
 
         self.bank += 20
         self.current_money[self.player1] -= 10
@@ -75,10 +77,10 @@ class GameRound(object):
         self.bids: Dict[Player, Card] = {self.player1: self.player1.make_first_bid()}
         self.bids[self.player2] = self.player1.make_response_bid(self.bids[self.player1])
 
-        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player1.name, self.bids[player1].color,
+        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player1.name, self.bids[player1].name,
                                                                         self.current_money[player1],
                                                                         self.bank))
-        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player2.name, self.bids[player2].color,
+        print("Player %s made first bid %s. Its money: %s. Bank: %s" % (self.player2.name, self.bids[player2].name,
                                                                         self.current_money[player2],
                                                                         self.bank))
 
@@ -88,7 +90,7 @@ class GameRound(object):
 
     def _run_game(self, player1: Player, player2: Player):
         action = self._make_action(player1, player2)
-        if action == PASS:
+        if action == Action.PASS:
             self._make_action(player2, player1)
             player1.notify_about_last_action(self.last_action)
             player2.notify_about_last_action(None)
@@ -101,19 +103,19 @@ class GameRound(object):
 
     def _make_action(self, player: Player, opponent: Player) -> Action:
         if self.current_money[player] < 10:
-            self.last_action = PASS
+            self.last_action = Action.PASS
         else:
             if self.last_action is None:
                 self.last_action = player.make_first_action(self.bids[opponent])
             else:
                 self.last_action = player.make_response_action(self.last_action)
-            if self.last_action == CHANGE:
+            if self.last_action == Action.CHANGE:
                 self.current_money[player] -= 10
                 self.bank += 10
-                self.bids[player] = RED if self.bids[player] == BLACK else BLACK
+                self.bids[player] = Card.RED if self.bids[player] == Card.BLACK else Card.BLACK
         print("Player %s made action %s. Its bid now %s. Its money: %s. Bank: %s" % (player.name,
                                                                                      self.last_action.name,
-                                                                                     self.bids[player].color,
+                                                                                     self.bids[player].name,
                                                                                      self.current_money[player],
                                                                                      self.bank))
         return self.last_action
@@ -121,8 +123,8 @@ class GameRound(object):
     def _resolve(self) -> (int, int):
         p1_correct = self.bids[self.player1] == self.cards[self.player1]
         p2_correct = self.bids[self.player2] == self.cards[self.player2]
-        print("%s had %s and %s had %s" % (self.player1.name, self.bids[self.player1].color,
-                                           self.player2.name, self.bids[self.player2].color))
+        print("%s had %s and %s had %s" % (self.player1.name, self.bids[self.player1].name,
+                                           self.player2.name, self.bids[self.player2].name))
         if p1_correct and p2_correct:
             value = self.bank / 2
             p1_value = self.current_money[self.player1] + value - self.starting_money[self.player1]
