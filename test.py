@@ -1,12 +1,7 @@
 import random
 from typing import Dict
 
-<<<<<<< Updated upstream
 from casino import Player, Card, Game
-=======
-from bot1 import BotIlariiaV1
-from casino import Player, Card, Action, Game
->>>>>>> Stashed changes
 from utils import Inteleaving
 from ilariia import B1V1
 
