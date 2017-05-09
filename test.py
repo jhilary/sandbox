@@ -88,8 +88,7 @@ def main():
     rounds = 1000
     print("Start battle %s vs %s\n" % (p1.name, p2.name))
     for i in range(games):
-        print("============\nGame: %s\n============\n" % i)
-        game = Game(p1, 100, p2, 100, rounds=rounds)
+        game = Game(p1, 100, p2, 100, rounds=rounds, debug=False)
         winner = game.run()
         if winner is not None:
             winners[winner] += 1
