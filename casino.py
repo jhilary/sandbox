@@ -1,5 +1,4 @@
 import random
-from collections import namedtuple
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Optional
 from enum import Enum
