@@ -1,7 +1,6 @@
 import random
 from storage import Storage, StorageRow, list_sequence
 from casino import Player, Card
-from collections import defaultdict
 
 
 class IlariiaPlayer(Player):
@@ -43,7 +42,7 @@ class IlariiaPlayer(Player):
     def win(self, value) -> None:
         self.value = value
 
-    def end_round(self):
+    def end_round(self) -> None:
         self.reset()
 
     def say_card(self) -> Card:
@@ -57,28 +56,26 @@ class IlariiaPlayer(Player):
         self.opponent.append(card)
 
     def would_change_card(self) -> bool:
-        card = self._make_decision()
-        if card != self.my[-1]:
-            self.my.append(card)
-            return True
-        else:
-            self.my.append(card)
-            return False
+        old_card = self.my[-1]
+        new_card = self._make_decision()
+        self.my.append(new_card)
+        return new_card != old_card
 
     def opponent_card(self, card: Card) -> None:
         self.op_card = card
 
-    def _change_card(self, old_card):
+    def opponent_change_card(self, is_changed: bool) -> None:
+        if is_changed:
+            self.opponent_said_card(self.switch_card(self.opponent[-1]))
+        else:
+            self.opponent_said_card(self.opponent[-1])
+
+    @staticmethod
+    def switch_card(old_card) -> Card:
         if old_card == Card.BLACK:
             return Card.RED
         else:
             return Card.BLACK
-
-    def opponent_change_card(self, is_changed: bool) -> None:
-        if is_changed:
-            self.opponent_said_card(self._change_card(self.opponent[-1]))
-        else:
-            self.opponent_said_card(self.opponent[-1])
 
     def _make_decision(self) -> Card:
         raise NotImplementedError()
@@ -102,21 +99,8 @@ class B1V1(IlariiaPlayer):
 
     def _make_decision(self) -> Card:
         if self.opponent:
-            if len(self.opponent) > 1:
-                if self.opponent[-1] == self.opponent[-2]:
-                    return self.my[-1]
-
-            if self.opponent[-1] == Card.BLACK:
-                return Card.RED
-            if self.opponent[-1] == Card.RED:
-                return Card.BLACK
-
-        if self.my_card == Card.BLACK:
-            return Card.RED
-        if self.my_card == Card.RED:
-            return Card.BLACK
-
-        assert False, "Cannot be reached"
+            return self.switch_card(self.opponent[-1])
+        return self.switch_card(self.my_card)
 
 
 class B1V2(IlariiaPlayer):
@@ -130,39 +114,22 @@ class B1V2(IlariiaPlayer):
     def name(self) -> str:
         return "IlariiaUltimatum"
 
-    def _learn_strategy(self):
+    def _learn_strategy(self) -> Card:
         if self.opponent:
-            if len(self.opponent) > 1:
-                if self.opponent[-1] == self.opponent[-2]:
-                    return self.my[-1]
+            return self.switch_card(self.opponent[-1])
+        return self.switch_card(self.my_card)
 
-            if self.opponent[-1] == Card.BLACK:
-                return Card.RED
-            if self.opponent[-1] == Card.RED:
-                return Card.BLACK
-
-        if self.my_card == Card.BLACK:
-            return Card.RED
-        if self.my_card == Card.RED:
-            return Card.BLACK
-
-        assert False, "Cannot be reached"
-
-    def _historic_base_strategy(self):
+    def _historic_base_strategy(self) -> Card:
 
         sequence = list_sequence(self.my, self.opponent)
 
         choose_red = tuple([self.my_card] + sequence + [Card.RED])
         choose_black = tuple([self.my_card] + sequence + [Card.BLACK])
 
-
         M_red, C_red = self.historic_base.get(choose_red, (0, 1))
         M_black, C_black = self.historic_base.get(choose_black, (0, 1))
 
-        # print(choose_red, M_red, C_red)
-        # print(choose_black, M_black, C_black)
-
-        if M_red/C_red > M_black/C_black:
+        if M_red / C_red > M_black/C_black:
             return Card.RED
         else:
             return Card.BLACK
@@ -193,14 +160,8 @@ class B1V3(B1V2):
     def name(self) -> str:
         return "IlariiaRandomUltimatum"
 
-    def _learn_strategy(self):
+    def _learn_strategy(self) -> Card:
         return random.choice([Card.RED, Card.BLACK])
-
-    # def would_change_card(self):
-    #     result = super(B1V3, self).would_change_card()
-    #     print(result)
-    #     return result
-
 
 
 if __name__ == "__main__":
