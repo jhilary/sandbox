@@ -25,9 +25,8 @@ class Bot(object):
         self.env = env
 
     def __repr__(self):
-        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s" % \
+        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
                (self.action, self.observation, self.reward, self.done, self.info)
-
 
     @abstractmethod
     def _observe(self) -> None:
@@ -54,11 +53,11 @@ class Bot(object):
     def run(self) -> None:
         for i_episode in range(1000):
             counter = 0
-            self.observe(**self.env.reset())
+            self.observe(*self.env.reset())
             while True:
                 counter += 1
                 self.env.render()
-                self.observe(**self.env.step(self.act()))
+                self.observe(*self.env.step(self.act()))
                 if self.done:
                     print("Episode {} finished after {} timesteps".format(i_episode, counter))
                     break
