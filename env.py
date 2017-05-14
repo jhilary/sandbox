@@ -98,7 +98,7 @@ class CardsGuessing(Env):
 
     def _make_opponents_turn(self, reward=0.0, first_turn=False):
         opp_state = self._get_observation(self._opponent, first_turn), reward, self._is_done(), {}
-        self._opponent_agent.observe(opp_state)
+        self._opponent_agent.observe(*opp_state)
         opp_action = Card(self._opponent_agent.act())
         self._process_action(self._opponent, opp_action)
 
