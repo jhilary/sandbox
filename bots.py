@@ -28,7 +28,7 @@ class Bot(object):
         return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s" % \
                (self.action, self.observation, self.reward, self.done, self.info)
 
-    def reset(self) -> None:
+    def _reset(self) -> None:
         self.observation = None
         self.reward = 0
         self.done = False
@@ -43,9 +43,11 @@ class Bot(object):
         self.reward = reward
         self.done = done
         self.info = info
+        self._observe()
         if self.debug:
             print(self)
-        self._observe()
+        if self.done:
+            self._reset()
 
     @abstractmethod
     def _act(self) -> object:
@@ -126,7 +128,7 @@ class IlariiaUltimatum(Bot):
         self.my = []
         self.opponent = []
 
-    def reset(self) -> None:
+    def _reset(self) -> None:
         super(IlariiaUltimatum, self).reset()
         self.my = []
         self.opponent = []
