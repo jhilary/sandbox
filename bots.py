@@ -50,8 +50,8 @@ class Bot(object):
         self.action = self._act()
         return self.action
 
-    def run(self) -> None:
-        for i_episode in range(1000):
+    def run(self, episodes: int = 1000) -> None:
+        for i_episode in range(episodes):
             counter = 0
             self.observe(*self.env.reset())
             while True:
@@ -77,7 +77,7 @@ class SmarterBaselineBot(Bot):
     def _act(self) -> object:
         if self.action is not None:
             return self.action
-        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS:
             return switch_card(self.observation[1])
         return switch_card(self.observation[2])
 
@@ -87,22 +87,22 @@ class SmarterBaselineBot(Bot):
 
 class BlackBot(Bot):
     def _act(self) -> object:
-        return Card.BLACK.value
+        return Card.BLACK
 
     def _observe(self) -> None:
         pass
 
 
 def switch_card(value: int) -> int:
-    if value == Card.RED.value:
-        return Card.BLACK.value
-    return Card.RED.value
+    if value == Card.RED:
+        return Card.BLACK
+    return Card.RED
 
 
 class IlariiaB1V1(Bot):
 
     def _act(self) -> int:
-        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS:
             return switch_card(self.observation[1])
         return switch_card(self.observation[2])
 
@@ -125,7 +125,7 @@ class IlariiaUltimatum(Bot):
         self.opponent = []
 
     def _basic_strategy(self) -> int:
-        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS:
             return switch_card(self.observation[1])
         return switch_card(self.observation[2])
 
@@ -133,16 +133,16 @@ class IlariiaUltimatum(Bot):
 
         sequence = list_sequence(self.my, self.opponent)
 
-        choose_red = tuple([self.observation[2]] + sequence + [Card.RED.value])
-        choose_black = tuple([self.observation[2]] + sequence + [Card.BLACK.value])
+        choose_red = tuple([self.observation[2]] + sequence + [Card.RED])
+        choose_black = tuple([self.observation[2]] + sequence + [Card.BLACK])
 
         M_red, C_red = self.historic_base.get(choose_red, (0, 1))
         M_black, C_black = self.historic_base.get(choose_black, (0, 1))
 
         if M_red / C_red > M_black/C_black:
-            return Card.RED.value
+            return Card.RED
         else:
-            return Card.BLACK.value
+            return Card.BLACK
 
     def _act(self) -> int:
         self.counter += 1
