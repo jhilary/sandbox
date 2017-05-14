@@ -24,8 +24,8 @@ class Bot(object):
         self.env = env
 
     def __repr__(self):
-        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
-               (self.action, self.observation, self.reward, self.done, self.info)
+        return f"Action: { self.action };\nObservation: { self.observation }\n" \
+               f"Reward: { self.reward };\nDone: { self.done }\nInfo: { self.info }\n"
 
     @abstractmethod
     def _observe(self) -> None:
@@ -57,7 +57,7 @@ class Bot(object):
                 self.env.render()
                 self.observe(*self.env.step(self.act()))
                 if self.done:
-                    print("Episode {} finished after {} timesteps".format(i_episode, counter))
+                    print(f"Episode { i_episode } finished after { counter } timesteps")
                     break
 
 
