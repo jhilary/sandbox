@@ -6,6 +6,11 @@ from gym import Env
 from gym.spaces import Discrete, MultiDiscrete
 
 
+class FirstTurnInRound(IntEnum):
+    NO = 0
+    YES = 1
+
+
 class Guess(IntEnum):
     AWAITING_FOR_GUESS = 0
     RED = 1
@@ -28,10 +33,11 @@ class CardsGuessing(Env):
     # noinspection PyTypeChecker
     action_space = Discrete(len(list(Card)))
     # noinspection PyTypeChecker
-    observation_space = MultiDiscrete([[0, 1], [0, 2]])  # Card x Guess
+    observation_space = MultiDiscrete([[0, 1], [0, 1], [0, 2]])  # FirstTurnInRound x Card x Guess
 
     def __init__(self, starting_money, opponent):
         self._opponent_agent = opponent
+        self._starting_money = starting_money
         self._start_new_round(starting_money, starting_money)
         opponent.set_env(self)
 
@@ -53,53 +59,60 @@ class CardsGuessing(Env):
     def _get_round_rewards(self):
         player_correct = self._card[self._opponent] == self._said[self._player]
         opponent_correct = self._card[self._player] == self._said[self._opponent]
-        bank = (self._money[self._opponent] - self._current_money[self._opponent]) + \
-               (self._money[self._player] - self._current_money[self._player])
+
+        player_spent = self._money[self._player] - self._current_money[self._player]
+        opponent_spent = self._money[self._opponent] - self._current_money[self._opponent]
+        bank = player_spent + opponent_spent
+
         if player_correct and opponent_correct:
             value = bank / 2
-            player_reward = self._current_money[self._player] + value - self._money[self._player]
-            opponent_reward = self._current_money[self._opponent] + value - self._money[self._opponent]
+            p_value = value
+            o_value = value
         elif player_correct and not opponent_correct:
-            player_reward = self._current_money[self._player] + bank - self._money[self._player]
-            opponent_reward = self._current_money[self._opponent] - self._money[self._opponent]
+            p_value = bank
+            o_value = 0.0
         elif not player_correct and opponent_correct:
-            player_reward = self._current_money[self._player] - self._money[self._player]
-            opponent_reward = self._current_money[self._opponent] + bank - self._money[self._opponent]
+            p_value = 0.0
+            o_value = bank
         else:
-            player_reward, opponent_reward = 0.0, 0.0
+            p_value = player_spent
+            o_value = opponent_spent
+        player_reward = p_value - player_spent
+        opponent_reward = o_value - opponent_spent
         assert player_reward + opponent_reward == 0.0, (player_reward, opponent_reward)
         return player_reward, opponent_reward
     
     def _step(self, action: int):
+        assert not self._is_done()
         action = Card(action)
         self._process_action(self._player, action)
 
         if not self._passed[self._player] and not self._passed[self._opponent]:
             self._make_opponents_turn()
-            return self._get_observation(self._player), 0, False, {}
+            return self._get_observation(self._player), 0.0, False, {}
         elif self._passed[self._player] and not self._passed[self._opponent]:
             self._make_opponents_turn()
             return self._finish_round()
         else:
             return self._finish_round()
 
-    def _make_opponents_turn(self):
-        opp_state = self._get_observation(self._opponent), 0, self._is_done(), {}
+    def _make_opponents_turn(self, reward=0.0, first_turn=False):
+        opp_state = self._get_observation(self._opponent, first_turn), reward, self._is_done(), {}
         self._opponent_agent.observe(opp_state)
-        opp_action = self._opponent_agent.act()
+        opp_action = Card(self._opponent_agent.act())
         self._process_action(self._opponent, opp_action)
 
-    def _get_observation(self, player: Player):
+    def _get_observation(self, player: Player, first_turn=False):
         opponent = self._player if player == self._opponent else self._opponent
-        return self._card[player], self._said[opponent]
+        return FirstTurnInRound(int(first_turn)), self._card[player], self._said[opponent]
 
     def _process_action(self, player: Player, action: Card):
-        if self._said[player] is None:
+        if self._said[player] == Guess.AWAITING_FOR_GUESS:
             self._said[player] = action
-            self._current_money[player] -= 10
+            self._current_money[player] -= 10.0
         elif self._said[player] != action:
-            self._said[player] = Card(action)
-            self._current_money[player] -= 10
+            self._said[player] = action
+            self._current_money[player] -= 10.0
         else:
             self._passed[player] = True
 
@@ -111,13 +124,14 @@ class CardsGuessing(Env):
 
     def _make_first_turn_in_round(self, player_reward, opponent_reward):
         if random.random() < 0.5:
-            return self._get_observation(self._player), player_reward, self._is_done(), {}
+            return self._get_observation(self._player, first_turn=True), player_reward, self._is_done(), {}
         else:
-            self._make_opponents_turn()
-            return self._get_observation(self._player), opponent_reward, self._is_done(), {}
+            self._make_opponents_turn(opponent_reward, first_turn=True)
+            return self._get_observation(self._player, first_turn=True), player_reward, self._is_done(), {}
 
     def _reset(self):
-        return self._make_first_turn_in_round(player_reward=0, opponent_reward=0)
+        self._start_new_round(self._starting_money, self._starting_money)
+        return self._make_first_turn_in_round(player_reward=0.0, opponent_reward=0.0)
 
     def _seed(self, seed=None):
         random.seed(seed)
