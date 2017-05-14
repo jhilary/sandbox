@@ -8,9 +8,8 @@ class Bot(object):
     __metaclass__ = ABCMeta
 
     @property
-    @abstractmethod
     def name(self) -> str:
-        return self.__name__
+        return self.__class__.__name__
 
     def __init__(self, debug: bool = False):
         self.env = None
@@ -40,7 +39,6 @@ class Bot(object):
         self._observe()
         if self.debug:
             print(self)
-
 
     @abstractmethod
     def _act(self) -> object:
