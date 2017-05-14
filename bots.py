@@ -25,7 +25,7 @@ class Bot(object):
         self.env = env
 
     def __repr__(self):
-        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s" % \
+        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
                (self.action, self.observation, self.reward, self.done, self.info)
 
 
