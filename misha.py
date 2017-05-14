@@ -59,9 +59,9 @@ class MishaBotV1(Player):
             self._my_said_card = random.choice([Card.BLACK, Card.RED])
         else:
             p_opcard_red_cond_all = self._p_opcard_cond_all(Card.RED)
-            # self._my_said_card = Card.RED if random.random() < p_opcard_red_cond_all else Card.BLACK
-            p_opcard_black_cond_all = self._p_opcard_cond_all(Card.BLACK)
-            self._my_said_card = Card.RED if p_opcard_red_cond_all > p_opcard_black_cond_all else Card.BLACK
+            self._my_said_card = Card.RED if random.random() < p_opcard_red_cond_all else Card.BLACK
+            # p_opcard_black_cond_all = self._p_opcard_cond_all(Card.BLACK)
+            # self._my_said_card = Card.RED if p_opcard_red_cond_all > p_opcard_black_cond_all else Card.BLACK
         return self._my_said_card
 
     def _p_opcard_cond_all(self, opcard):
