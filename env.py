@@ -7,8 +7,8 @@ from gym.spaces import Discrete, MultiDiscrete
 
 class Guess(IntEnum):
     AWAITING_FOR_GUESS = 0
-    SAID_RED = 1
-    SAID_BLACK = 2
+    RED = 1
+    BLACK = 2
 
 
 class Card(IntEnum):
@@ -49,6 +49,15 @@ class CardsGuessing(Env):
             p_value = self._player_current_money + value - self._player_money
             o_value = self._opponent_current_money + value - self._opponent_money
             assert p_value + p_value == 0.0, (p_value, o_value)
+        elif player_correct and not opponent_correct:
+            p_value = self._player_current_money + bank - self._player_money
+            o_value = self._opponent_current_money - self._opponent_money
+        elif not player_correct and opponent_correct:
+            p_value = self.current_money[self.player1] - self.starting_money[self.player1]
+            p2_value = self.current_money[self.player2] + self.bank - self.starting_money[self.player2]
+        else:
+            self.info("Both player guessed wrong")
+            p1_value, p2_value = 0.0, 0.0
 
     def _step(self, action: int):
         if self._player_said is None:
