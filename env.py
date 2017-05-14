@@ -133,5 +133,12 @@ class CardsGuessing(Env):
         self._start_new_round(self._starting_money, self._starting_money)
         return self._make_first_turn_in_round(player_reward=0.0, opponent_reward=0.0)
 
+    def _render(self, mode='human', close=False):
+        print(f"""Player's card: {self._card[self._player]}, Opponent's card: {self._card[self._opponent]}
+Player's guess: {self._said[self._player]}, Opponent's guess: {self._said[self._opponent]},
+Player's current money: {self._current_money[self._player]}, Opponent's current money: {self._current_money[self._opponent]}
+Player's money: {self._money[self._player]}, Opponent's money: {self._money[self._opponent]}
+""")
+
     def _seed(self, seed=None):
         random.seed(seed)
