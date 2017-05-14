@@ -59,7 +59,7 @@ class CardsGuessing(Env):
         self._opponent_said = None
         self._opponent_passed = None
         self._player_said = None
-        starting_state = self.AWAITING_FOR_GUESS, 0, False, {}
+        starting_state = Observation.AWAITING_FOR_GUESS, 0, False, {}
         if random.random() < 0.5:
             return starting_state
         else:
