@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from gym import Env
-from env import Card, Guess
+from env import Card, Guess, FirstTurnInRound
 from storage import list_sequence
 
 
@@ -28,11 +28,6 @@ class Bot(object):
         return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s" % \
                (self.action, self.observation, self.reward, self.done, self.info)
 
-    def _reset(self) -> None:
-        self.observation = None
-        self.reward = 0
-        self.done = False
-        self.info = {}
 
     @abstractmethod
     def _observe(self) -> None:
@@ -46,8 +41,7 @@ class Bot(object):
         self._observe()
         if self.debug:
             print(self)
-        if self.done:
-            self._reset()
+
 
     @abstractmethod
     def _act(self) -> object:
@@ -61,7 +55,6 @@ class Bot(object):
         for i_episode in range(1000):
             counter = 0
             self.observe(**self.env.reset())
-            self.reset()
             while True:
                 counter += 1
                 self.env.render()
@@ -85,9 +78,9 @@ class SmarterBaselineBot(Bot):
     def _act(self) -> object:
         if self.action is not None:
             return self.action
-        if self.observation[1] == Guess.AWAITING_FOR_GUESS.value:
-            return switch_card(self.observation[0])
-        return switch_card(self.observation[1])
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+            return switch_card(self.observation[1])
+        return switch_card(self.observation[2])
 
     def _observe(self) -> None:
         pass
@@ -110,9 +103,9 @@ def switch_card(value: int) -> int:
 class IlariiaB1V1(Bot):
 
     def _act(self) -> int:
-        if self.observation[1] == Guess.AWAITING_FOR_GUESS.value:
-            return switch_card(self.observation[0])
-        return switch_card(self.observation[1])
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+            return switch_card(self.observation[1])
+        return switch_card(self.observation[2])
 
     def _observe(self):
         pass
@@ -129,21 +122,20 @@ class IlariiaUltimatum(Bot):
         self.opponent = []
 
     def _reset(self) -> None:
-        super(IlariiaUltimatum, self).reset()
         self.my = []
         self.opponent = []
 
     def _basic_strategy(self) -> int:
-        if self.observation[1] == Guess.AWAITING_FOR_GUESS.value:
-            return switch_card(self.observation[0])
-        return switch_card(self.observation[1])
+        if self.observation[2] == Guess.AWAITING_FOR_GUESS.value:
+            return switch_card(self.observation[1])
+        return switch_card(self.observation[2])
 
     def _historic_base_strategy(self) -> int:
 
         sequence = list_sequence(self.my, self.opponent)
 
-        choose_red = tuple([self.observation[0]] + sequence + [Card.RED.value])
-        choose_black = tuple([self.observation[1]] + sequence + [Card.BLACK.value])
+        choose_red = tuple([self.observation[2]] + sequence + [Card.RED.value])
+        choose_black = tuple([self.observation[2]] + sequence + [Card.BLACK.value])
 
         M_red, C_red = self.historic_base.get(choose_red, (0, 1))
         M_black, C_black = self.historic_base.get(choose_black, (0, 1))
@@ -161,12 +153,14 @@ class IlariiaUltimatum(Bot):
             return self._basic_strategy()
 
     def _observe(self) -> None:
-        self.opponent.append(self.observation[1])
+        if self.observation[0] == FirstTurnInRound.YES:
+            self._reset()
+        self.opponent.append(self.observation[2])
         if self.done:
             sequence = list_sequence(self.my, self.opponent)
             i = 0
             while i < len(sequence):
-                key = tuple([self.observation[0]] + sequence[: (i + 1)])
+                key = tuple([self.observation[1]] + sequence[: (i + 1)])
                 if key not in self.historic_base:
                     new_value = (self.reward, 1)
                 else:
