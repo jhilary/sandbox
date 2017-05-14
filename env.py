@@ -5,11 +5,6 @@ from gym import Env
 from gym.spaces import Discrete, MultiDiscrete
 
 
-class Action(IntEnum):
-    SAY_RED = 0
-    SAY_BLACK = 1
-
-
 class Guess(IntEnum):
     AWAITING_FOR_GUESS = 0
     SAID_RED = 1
@@ -23,7 +18,7 @@ class Card(IntEnum):
 
 class CardsGuessing(Env):
     # noinspection PyTypeChecker
-    action_space = Discrete(len(list(Action)))
+    action_space = Discrete(len(list(Card)))
     # noinspection PyTypeChecker
     observation_space = MultiDiscrete([[0, 1], [0, 2]])  # Card x Guess
 
@@ -38,35 +33,34 @@ class CardsGuessing(Env):
 
     def _start_anew(self):
         self._opponent_passed = False
-        self._opponent_said: Action = None
-        self._opponent_card = Action(random.choice([0, 1]))
-
+        self._opponent_said: Card = None
+        self._opponent_card = random.choice(Card)
         self._player_passed = False
-        self._player_said: Action = None
-        self._player_card = Action(random.choice([0, 1]))
+        self._player_said: Card = None
+        self._player_card = random.choice(Card)
 
     def _get_round_rewards(self):
         player_correct = self._opponent_card == self._player_said
         opponent_correct = self._player_card == self._opponent_said
         bank = (self._opponent_money - self._opponent_current_money) + \
                (self._player_money - self._player_current_money)
-        # if player_correct and opponent_correct:
-        #     value = bank / 2
-        #     p_value = self._player_current_money + value - self._player_money
-        #     o_value = self.current_money[self.player2] + value - self.starting_money[self.player2]
-        #     assert p1_value + p2_value == 0.0, (p1_value, p2_value)
+        if player_correct and opponent_correct:
+            value = bank / 2
+            p_value = self._player_current_money + value - self._player_money
+            o_value = self._opponent_current_money + value - self._opponent_money
+            assert p_value + p_value == 0.0, (p_value, o_value)
 
     def _step(self, action: int):
         if self._player_said is None:
             self._player_said = action
             self._player_current_money -= 10
         elif self._player_said != action:
-            self._player_said = Action(action)
+            self._player_said = Card(action)
             self._player_current_money -= 10
         else:
             self._player_passed = True
 
-        if self._player_passed and self._opponent_passed:
+        # if self._player_passed and self._opponent_passed:
 
 
 
