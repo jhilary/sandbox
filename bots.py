@@ -62,7 +62,6 @@ class Bot(object):
 
 
 class BaselineBot(Bot):
-
     def _act(self) -> object:
         return self.env.actions_space.sample()
 
@@ -84,6 +83,7 @@ class SmarterBaselineBot(Bot):
 
 
 class BlackBot(Bot):
+    
     def _act(self) -> object:
         return Card.BLACK
 
