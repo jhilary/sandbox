@@ -1,7 +1,9 @@
 import random
 from typing import Dict
 
+from bots import BaselineBot, SmarterBaselineBot
 from casino import Player, Card, Game
+from env import CardsGuessing
 from misha import MishaBotV1, MishaBotV2
 from utils import Inteleaving
 from ilariia import B1V1, B1V2, B1V3, BlackBot
@@ -112,17 +114,23 @@ def main():
     # versus(MishaBotV1(10), BaselinePlayer("MishaBaseline"))
     # versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
     # versus(MishaBotV1(10), B1V3(500))
-    #versus(SmarterBaseline("MishaSmarter"), B1V3(100))
-    #versus(BaselinePlayer("MishaBaseline"), B1V3(100))
-    #versus(MishaBotV1(10), B1V3(100))
+    # versus(SmarterBaseline("MishaSmarter"), B1V3(100))
+    # versus(BaselinePlayer("MishaBaseline"), B1V3(100))
+    # versus(MishaBotV1(10), B1V3(100))
     # versus(B1V1(), B1V3(100))
-    #versus(BlackBot(), B1V3(100))
+    # versus(BlackBot(), B1V3(100))
     # versus(B1V1(), B1V3(500))
 
     # versus(MishaBotV1(10), MishaBotV2())
-    versus(MishaBotV1(10), B1V3(100))
+    # versus(MishaBotV1(10), B1V3(100))
     # versus(MishaBotV2(), BaselinePlayer("Baseline"))
     # versus(MishaBotV2(), SmarterBaseline("Smarter"))
+
+    opponent = BaselineBot(debug=True)
+    env = CardsGuessing(starting_money=100.0, opponent=opponent)
+    player = SmarterBaselineBot(debug=True)
+    player.set_env(env)
+    player.run(1000)
 
 if __name__ == "__main__":
     main()

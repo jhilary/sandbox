@@ -24,8 +24,8 @@ class Bot(object):
         self.env = env
 
     def __repr__(self):
-        return "Action: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
-               (self.action, self.observation, self.reward, self.done, self.info)
+        return "Name: %s;\nAction: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
+               (self.name, self.action, self.observation, self.reward, self.done, self.info)
 
     @abstractmethod
     def _observe(self) -> None:
@@ -57,14 +57,16 @@ class Bot(object):
                 self.env.render()
                 self.observe(*self.env.step(self.act()))
                 if self.done:
-                    print("Episode {} finished after {} timesteps".format(i_episode, counter))
+                    print("RECEIVED DONE!")
+                    self.env.render()
+                    print("\nEpisode {} finished after {} timesteps".format(i_episode, counter))
                     break
 
 
 class BaselineBot(Bot):
 
     def _act(self) -> object:
-        return self.env.actions_space.sample()
+        return self.env.action_space.sample()
 
     def _observe(self) -> None:
         pass
