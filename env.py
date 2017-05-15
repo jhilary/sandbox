@@ -11,10 +11,11 @@ class FirstTurnInRound(IntEnum):
     YES = 1
 
 
+# order is important as we are comparing Guess to Card directly
 class Guess(IntEnum):
-    AWAITING_FOR_GUESS = 0
-    RED = 1
-    BLACK = 2
+    RED = 0
+    BLACK = 1
+    AWAITING_FOR_GUESS = 2
 
 
 class Card(IntEnum):
@@ -62,6 +63,9 @@ class CardsGuessing(Env):
 
     def _finish_round(self):
         player_reward, opponent_reward = self._get_round_rewards()
+        print(f"--== Player's guess {self._said[self._player]} VS real {self._card[self._opponent]}")
+        print(f"--== Opps's guess {self._said[self._opponent]} VS real {self._card[self._player]}")
+        print(f"--== Player's reward {player_reward}, Opp's reward {opponent_reward} ==--\n")
         player_money = self._money[self._player] + player_reward
         opponent_money = self._money[self._opponent] + opponent_reward
         if player_money < 10:
