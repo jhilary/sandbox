@@ -31,6 +31,7 @@ class MishaBotV1(Bot):
             if self._op_previous_guess is None:
                 self._op_previous_guess = self.observation[2]
             elif self._op_previous_guess != self.observation[2]:
+                self._op_previous_guess = self.observation[2]
                 self._op_changed_guess = True
 
     def _act(self) -> object:
@@ -80,13 +81,14 @@ class MishaBotV1(Bot):
         return counter / self._number_of_rounds
 
     def _cond_p(self, opcard, mycard, opsaid=None, changed=None):
+        mycard = [mycard]
         opsaid = [Card.RED, Card.BLACK] if opsaid == Guess.AWAITING_FOR_GUESS else [opsaid]
         changed = [True, False] if changed is None else [changed]
-        mycard = [mycard]
         total = sum(self.marginal_counters[RoundHistory(*i)] for i in product([Card.RED, Card.BLACK],
                                                                               [Card.RED, Card.BLACK],
                                                                               [True, False],
                                                                               [opcard]))
+
         count = sum(self.marginal_counters[RoundHistory(*i)] for i in product(mycard, opsaid, changed, [opcard]))
         return count / total
 
