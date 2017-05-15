@@ -27,12 +27,18 @@ class Player(IntEnum):
     OPPONENT = 1
 
 
+def switch_card(value: int) -> int:
+    if value == Card.RED:
+        return Card.BLACK
+    return Card.RED
+
+
 class CardsGuessing(Env):
     _player = Player.PLAYER
     _opponent = Player.OPPONENT
 
     metadata = {'render.modes': ['human']}
-    
+
     # noinspection PyTypeChecker
     action_space = Discrete(len(list(Card)))
     # noinspection PyTypeChecker
@@ -91,7 +97,7 @@ class CardsGuessing(Env):
         opponent_reward = o_value - opponent_spent
         assert player_reward + opponent_reward == 0.0, (player_reward, opponent_reward)
         return player_reward, opponent_reward
-    
+
     def _step(self, action: int):
         assert not self._is_done()
         action = Card(action)
