@@ -83,7 +83,7 @@ class SmarterBaselineBot(Bot):
 
 
 class BlackBot(Bot):
-    
+
     def _act(self) -> object:
         return Card.BLACK
 
