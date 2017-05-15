@@ -3,10 +3,10 @@ from typing import Dict
 
 from casino import Player, Card, Game
 from env import CardsGuessing
-from misha import MishaBotV1, MishaBotV2
 from utils import Inteleaving
-from ilariia import B1V1, B1V2, B1V3, BlackBot
-from bots import BaselineBot, SmarterBaselineBot
+# from misha import MishaBotV1, MishaBotV2
+# from ilariia import B1V1, B1V2, B1V3, BlackBot
+from bots import *
 
 
 class BaselinePlayer(Player):
@@ -126,11 +126,11 @@ def main():
     # versus(MishaBotV2(), BaselinePlayer("Baseline"))
     # versus(MishaBotV2(), SmarterBaseline("Smarter"))
 
-    opponent = BaselineBot(debug=False)
+    opponent = SmarterBaselineBot()
     env = CardsGuessing(starting_money=100, opponent=opponent)
-    player = SmarterBaselineBot(debug=False)
+    player = MishaBotV1()
     player.set_env(env)
-    player.run(1000)
+    player.run(100)
 
 if __name__ == "__main__":
     main()

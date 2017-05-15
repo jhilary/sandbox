@@ -61,7 +61,7 @@ class MishaBotV1(Bot):
         opsaid = [Card.RED, Card.BLACK]
         changed = [True, False]
         opcard = [Card.RED, Card.BLACK]
-        return { RoundHistory(*i): apriori for i in product(mycard, opsaid, changed, opcard) }
+        return {RoundHistory(*i): apriori for i in product(mycard, opsaid, changed, opcard)}
 
     def _p_opcard_cond_all(self, opcard):
         mycard = self.observation[1]
