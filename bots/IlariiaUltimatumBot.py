@@ -18,16 +18,19 @@ class IlariiaUltimatumBot(Bot):
         self.counter = 0
         self.learning_time = learning_time
         self.historic_base = {}
+
+        self.my_card = None
         self.my = []
         self.opponent = []
 
     def _reset(self) -> None:
+        self.my_card = None
         self.my = []
         self.opponent = []
 
     def _basic_strategy(self) -> int:
         if self.observation[2] == Guess.AWAITING_FOR_GUESS:
-            return switch_card(self.observation[1])
+            return switch_card(self.my_card)
         return switch_card(self.observation[2])
 
     def _historic_base_strategy(self) -> int:
@@ -54,16 +57,17 @@ class IlariiaUltimatumBot(Bot):
 
     def _observe(self) -> None:
         if self.observation[0] == FirstTurnInRound.YES:
-            self._reset()
-        self.opponent.append(self.observation[2])
-        if self.done:
             sequence = _list_sequence(self.my, self.opponent)
             i = 0
             while i < len(sequence):
-                key = tuple([self.observation[1]] + sequence[: (i + 1)])
+                key = tuple([self.my_card] + sequence[: (i + 1)])
                 if key not in self.historic_base:
                     new_value = (self.reward, 1)
                 else:
                     new_value = (self.historic_base[key][0] + self.reward, self.historic_base[key][1] + 1)
                 self.historic_base[key] = new_value
                 i += 2
+            self._reset()
+        self.my_card = self.observation[1]
+        self.opponent.append(self.observation[2])
+
