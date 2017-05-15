@@ -1,12 +1,12 @@
 import random
 from typing import Dict
 
-from bots import BaselineBot, SmarterBaselineBot
 from casino import Player, Card, Game
 from env import CardsGuessing
 from misha import MishaBotV1, MishaBotV2
 from utils import Inteleaving
 from ilariia import B1V1, B1V2, B1V3, BlackBot
+from bots import BaselineBot, SmarterBaselineBot
 
 
 class BaselinePlayer(Player):
