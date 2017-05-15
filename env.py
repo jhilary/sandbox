@@ -22,13 +22,14 @@ class Card(IntEnum):
     BLACK = 1
 
 
-class Player(object):
-    pass
+class Player(IntEnum):
+    PLAYER = 0
+    OPPONENT = 1
 
 
 class CardsGuessing(Env):
-    _player = Player()
-    _opponent = Player()
+    _player = Player.PLAYER
+    _opponent = Player.OPPONENT
 
     metadata = {'render.modes': ['human']}
     
@@ -121,11 +122,12 @@ class CardsGuessing(Env):
         return self._player if player == self._opponent else self._opponent
 
     def _process_action(self, player: Player, action: Card):
-        if self._said[player] == Guess.AWAITING_FOR_GUESS and self._current_money[player] >= 10:
-            self._said[player] = action
+        guess = Guess.RED if action == Card.RED else Guess.BLACK
+        if self._said[player] == Guess.AWAITING_FOR_GUESS:
+            self._said[player] = guess
             self._current_money[player] -= 10.0
-        elif self._said[player] != action:
-            self._said[player] = action
+        elif self._said[player] != guess:
+            self._said[player] = guess
             self._current_money[player] -= 10.0
         else:
             self._passed[player] = True
