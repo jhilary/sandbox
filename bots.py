@@ -51,11 +51,14 @@ class Bot(object):
     def run(self, episodes: int = 1000) -> None:
         for i_episode in range(episodes):
             counter = 0
-            self.observe(*self.env.reset())
+            initial_state = self.env.reset()
+            self.observe(*initial_state)
             while True:
                 counter += 1
                 self.env.render()
-                self.observe(*self.env.step(self.act()))
+                action = self.act()
+                state = self.env.step(action)
+                self.observe(*state)
                 if self.done:
                     self.env.render()
                     print(f"Episode { i_episode } finished after { counter } timesteps")
@@ -73,11 +76,7 @@ class BaselineBot(Bot):
 class SmarterBaselineBot(Bot):
 
     def _act(self) -> object:
-        if self.action is not None:
-            return self.action
-        if self.observation[2] == Guess.AWAITING_FOR_GUESS:
-            return switch_card(self.observation[1])
-        return self.action
+        return switch_card(self.observation[1])
 
     def _observe(self) -> None:
         pass
