@@ -24,8 +24,8 @@ class Bot(object):
         self.env = env
 
     def __repr__(self):
-        return "Name: %s;\nAction: %s;\nObservation: %s\nReward: %s;\nDone: %s\nInfo: %s\n" % \
-               (self.name, self.action, self.observation, self.reward, self.done, self.info)
+        return f"Name: { self.name } Action: { self.action };\nObservation: { self.observation }\n" \
+               f"Reward: { self.reward };\nDone: { self.done }\nInfo: { self.info }\n"
 
     @abstractmethod
     def _observe(self) -> None:
@@ -57,14 +57,12 @@ class Bot(object):
                 self.env.render()
                 self.observe(*self.env.step(self.act()))
                 if self.done:
-                    print("RECEIVED DONE!")
                     self.env.render()
-                    print("\nEpisode {} finished after {} timesteps".format(i_episode, counter))
+                    print(f"Episode { i_episode } finished after { counter } timesteps")
                     break
 
 
 class BaselineBot(Bot):
-
     def _act(self) -> object:
         return self.env.action_space.sample()
 
@@ -86,6 +84,7 @@ class SmarterBaselineBot(Bot):
 
 
 class BlackBot(Bot):
+    
     def _act(self) -> object:
         return Card.BLACK
 
@@ -136,10 +135,10 @@ class IlariiaUltimatum(Bot):
         choose_red = tuple([self.observation[2]] + sequence + [Card.RED])
         choose_black = tuple([self.observation[2]] + sequence + [Card.BLACK])
 
-        M_red, C_red = self.historic_base.get(choose_red, (0, 1))
-        M_black, C_black = self.historic_base.get(choose_black, (0, 1))
+        m_red, c_red = self.historic_base.get(choose_red, (0, 1))
+        m_black, c_black = self.historic_base.get(choose_black, (0, 1))
 
-        if M_red / C_red > M_black/C_black:
+        if m_red / c_red > m_black/c_black:
             return Card.RED
         else:
             return Card.BLACK
