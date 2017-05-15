@@ -10,3 +10,5 @@ from .IlariiaRandomUltimatumBot import IlariiaRandomUltimatumBot
 
 from .MishaBotV1 import MishaBotV1
 from .MishaBotV2 import MishaBotV2
+
+from .SarsaBot import SarsaBot
