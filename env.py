@@ -11,10 +11,11 @@ class FirstTurnInRound(IntEnum):
     YES = 1
 
 
+# order is important as we are comparing Guess to Card directly
 class Guess(IntEnum):
-    AWAITING_FOR_GUESS = 0
-    RED = 1
-    BLACK = 2
+    RED = 0
+    BLACK = 1
+    AWAITING_FOR_GUESS = 2
 
 
 class Card(IntEnum):
@@ -55,16 +56,22 @@ class CardsGuessing(Env):
         self._passed: Dict[Player, bool] = {self._player: False, self._opponent: False}
         self._said: Dict[Player, Guess] = {self._player: Guess.AWAITING_FOR_GUESS,
                                            self._opponent: Guess.AWAITING_FOR_GUESS}
-        # noinspection PyTypeChecker
-        self._card: Dict[Player, Card] = {self._player: random.choice(list(Card)),
-                                          self._opponent: random.choice(list(Card))}
+        player_card, opp_card = random.sample([Card.RED, Card.RED, Card.BLACK, Card.BLACK], 2)
+        self._card: Dict[Player, Card] = {self._player: player_card, self._opponent: opp_card}
         self._money = {self._player: player_money, self._opponent: opponent_money}
         self._current_money = {self._player: player_money, self._opponent: opponent_money}
 
     def _finish_round(self):
         player_reward, opponent_reward = self._get_round_rewards()
+        print(f"--== Player's guess {self._said[self._player]} VS real {self._card[self._opponent]}")
+        print(f"--== Opps's guess {self._said[self._opponent]} VS real {self._card[self._player]}")
+        print(f"--== Player's reward {player_reward}, Opp's reward {opponent_reward} ==--\n")
         player_money = self._money[self._player] + player_reward
         opponent_money = self._money[self._opponent] + opponent_reward
+        if player_money < 10:
+            self._wins[self._opponent] += 1
+        if opponent_money < 10:
+            self._wins[self._player] += 1
         self._start_new_round(player_money, opponent_money)
         return self._make_first_turn_in_round(player_reward, opponent_reward)
 
@@ -80,16 +87,12 @@ class CardsGuessing(Env):
             value = bank / 2
             p_value = value
             o_value = value
-            self._wins[self._player] += 1
-            self._wins[self._opponent] += 1
         elif player_correct and not opponent_correct:
             p_value = bank
             o_value = 0.0
-            self._wins[self._player] += 1
         elif not player_correct and opponent_correct:
             p_value = 0.0
             o_value = bank
-            self._wins[self._opponent] += 1
         else:
             p_value = player_spent
             o_value = opponent_spent
