@@ -20,11 +20,19 @@ class MishaBotV1(Bot):
         self._number_of_rounds = len(self.marginal_counters) * apriori
 
         # Round state
+        self._my_card = None
+        self._prev_reward = None
         self._op_previous_guess: Card = None
-        self._op_changed_guess = False
+        self._op_changed_guess = None
 
     def _observe(self) -> None:
-        if self.observation[0] == FirstTurnInRound.YES:
+
+        if self._my_card is not None and self.observation[0] == FirstTurnInRound.YES:
+            changed = False if self._op_changed_guess is None else self._op_changed_guess
+            opponent_card = self.action if self._prev_reward > 0 else switch_card(self.action)
+            history = RoundHistory(self._my_card, self._op_previous_guess, changed, opponent_card)
+            self.marginal_counters[history] += 1
+            self._number_of_rounds += 1
             self._reset()
 
         if self.observation[2] != Guess.AWAITING_FOR_GUESS:
@@ -33,6 +41,9 @@ class MishaBotV1(Bot):
             elif self._op_previous_guess != self.observation[2]:
                 self._op_previous_guess = self.observation[2]
                 self._op_changed_guess = True
+
+        self._my_card = self.observation[1]
+        self._prev_reward = self.reward
 
     def _act(self) -> object:
         if self.observation[0] == FirstTurnInRound.YES:
@@ -67,7 +78,7 @@ class MishaBotV1(Bot):
         mycard = self.observation[1]
         opsaid = self.observation[2]
         changed = self._op_changed_guess
-        p_all_marg = self._marg_p(mycard=mycard, opsaid=opsaid, changed=changed)
+        p_all_marg = self._marg_p(mycard=mycard, opsaid=opsaid, changed=changed, opcard=opcard)
         p_all_cond_opcard = self._cond_p(opcard=opcard, mycard=mycard, opsaid=opsaid, changed=changed)
         p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
         return p_opcard_cond_all
@@ -95,3 +106,5 @@ class MishaBotV1(Bot):
     def _reset(self) -> None:
         self._op_previous_guess = None
         self._op_changed_guess = False
+        self._my_card = None
+        self._prev_reward = None
