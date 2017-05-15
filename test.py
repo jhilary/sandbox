@@ -130,7 +130,7 @@ def main():
     env = CardsGuessing(starting_money=100, opponent=opponent)
     player = SmarterBaselineBot(debug=False)
     player.set_env(env)
-    player.run(1)
+    player.run(1000)
 
 if __name__ == "__main__":
     main()
