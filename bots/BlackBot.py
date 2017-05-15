@@ -1,5 +1,5 @@
 from .Bot import Bot
-from ..env import Card
+from env import Card
 
 
 class BlackBot(Bot):

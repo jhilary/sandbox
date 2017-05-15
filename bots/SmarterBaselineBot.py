@@ -1,4 +1,4 @@
-from ..env import switch_card
+from env import switch_card
 from .Bot import Bot
 
 

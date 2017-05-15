@@ -1,4 +1,4 @@
-from ..env import Card
+from env import Card
 from .IlariiaUltimatumBot import IlariiaUltimatumBot
 
 

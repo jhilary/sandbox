@@ -2,7 +2,7 @@ from collections import namedtuple
 import random
 from itertools import product
 
-from ..env import switch_card, Card, FirstTurnInRound, Guess
+from env import switch_card, Card, FirstTurnInRound, Guess
 from .Bot import Bot
 
 

@@ -1,4 +1,4 @@
-from ..env import switch_card, Guess
+from env import switch_card, Guess
 from .Bot import Bot
 
 

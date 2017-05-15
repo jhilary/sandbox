@@ -1,5 +1,5 @@
 from random import random
-from ..env import switch_card, Guess, Card, FirstTurnInRound
+from env import switch_card, Guess, Card, FirstTurnInRound
 from .Bot import Bot
 
 

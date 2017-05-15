@@ -1,4 +1,4 @@
-from ..env import switch_card, Guess, Card, FirstTurnInRound
+from env import switch_card, Guess, Card, FirstTurnInRound
 from .Bot import Bot
 from itertools import zip_longest
 
