@@ -28,9 +28,9 @@ class MishaBotV1(Bot):
             self._reset()
 
         if self.observation[2] != Guess.AWAITING_FOR_GUESS:
-            if self._op_previous_card is None:
-                self._op_previous_card = self.observation[2]
-            elif self._op_previous_card != self.observation[2]:
+            if self._op_previous_guess is None:
+                self._op_previous_guess = self.observation[2]
+            elif self._op_previous_guess != self.observation[2]:
                 self._op_changed_guess = True
 
     def _act(self) -> object:
