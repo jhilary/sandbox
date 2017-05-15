@@ -76,11 +76,7 @@ class BaselineBot(Bot):
 class SmarterBaselineBot(Bot):
 
     def _act(self) -> object:
-        if self.action is not None:
-            return self.action
-        if self.observation[2] == Guess.AWAITING_FOR_GUESS:
-            return switch_card(self.observation[1])
-        return switch_card(self.observation[2])
+        return switch_card(self.observation[1])
 
     def _observe(self) -> None:
         pass

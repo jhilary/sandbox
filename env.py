@@ -37,7 +37,7 @@ class CardsGuessing(Env):
     # noinspection PyTypeChecker
     observation_space = MultiDiscrete([[0, 1], [0, 1], [0, 2]])  # FirstTurnInRound x Card x Guess
 
-    def __init__(self, starting_money: int, opponent):
+    def __init__(self, starting_money, opponent):
         self._opponent_agent = opponent
         self._starting_money = starting_money
         self._start_new_round(starting_money, starting_money)

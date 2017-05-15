@@ -126,11 +126,11 @@ def main():
     # versus(MishaBotV2(), BaselinePlayer("Baseline"))
     # versus(MishaBotV2(), SmarterBaseline("Smarter"))
 
-    opponent = BaselineBot(debug=True)
-    env = CardsGuessing(starting_money=100.0, opponent=opponent)
-    player = SmarterBaselineBot(debug=True)
+    opponent = BaselineBot(debug=False)
+    env = CardsGuessing(starting_money=100, opponent=opponent)
+    player = SmarterBaselineBot(debug=False)
     player.set_env(env)
-    player.run(1000)
+    player.run(1)
 
 if __name__ == "__main__":
     main()
