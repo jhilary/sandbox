@@ -34,9 +34,9 @@ class Bot(object):
         self.reward = reward
         self.done = done
         self.info = info
-        self._observe()
         if self.debug:
             print(self)
+        self._observe()
 
     @abstractmethod
     def _act(self) -> object:

@@ -26,8 +26,7 @@ class MishaBotV1(Bot):
         self._op_changed_guess = None
 
     def _observe(self) -> None:
-
-        if self._my_card is not None and self.observation[0] == FirstTurnInRound.YES:
+        if self._my_card is not None and self.done:
             changed = False if self._op_changed_guess is None else self._op_changed_guess
             opponent_card = self.action if self._prev_reward > 0 else switch_card(self.action)
             history = RoundHistory(self._my_card, self._op_previous_guess, changed, opponent_card)
