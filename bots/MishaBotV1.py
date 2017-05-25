@@ -1,7 +1,6 @@
 from collections import namedtuple
 import random
 from itertools import product
-from pprint import pprint
 
 from env import switch_card, Card, FirstTurnInRound, Guess
 from .Bot import Bot
@@ -10,10 +9,10 @@ from .Bot import Bot
 RoundHistory = namedtuple("RoundHistory", "my_card opp_said_card changed opp_card")
 
 
-class MishaBotV1(Bot):
+class MishaBotV1New(Bot):
 
     def __init__(self, apriori=10, debug=False):
-        super(MishaBotV1, self).__init__(debug)
+        super(MishaBotV1New, self).__init__(debug)
         self._apriori = apriori
 
         # Storage
@@ -33,7 +32,6 @@ class MishaBotV1(Bot):
             history = RoundHistory(self._my_card, self._op_previous_guess, changed, opponent_card)
             self.marginal_counters[history] += 1
             self._number_of_rounds += 1
-            pprint(self.marginal_counters)
             self._reset()
 
         if self.observation[2] != Guess.AWAITING_FOR_GUESS:
@@ -51,7 +49,8 @@ class MishaBotV1(Bot):
             if self.observation[2] == Guess.AWAITING_FOR_GUESS:
                 return random.choice([Card.BLACK, Card.RED])
             else:
-                if random.random() < self._p_opcard_cond_all(Card.RED):
+                red_prob = self._p_opcard_cond_all(Card.RED)
+                if red_prob > 0.5:
                     return Card.RED
                 else:
                     return Card.BLACK
@@ -79,7 +78,7 @@ class MishaBotV1(Bot):
         mycard = self.observation[1]
         opsaid = self.observation[2]
         changed = self._op_changed_guess
-        p_all_marg = self._marg_p(mycard=mycard, opsaid=opsaid, changed=changed, opcard=opcard)
+        p_all_marg = self._marg_p(mycard=mycard, opsaid=opsaid, changed=changed)
         p_all_cond_opcard = self._cond_p(opcard=opcard, mycard=mycard, opsaid=opsaid, changed=changed)
         p_opcard_cond_all = 0.5 * p_all_cond_opcard / p_all_marg
         return p_opcard_cond_all

@@ -125,11 +125,11 @@ def main():
     # versus(MishaBotV1(10), MishaBotV2())
     # versus(MishaBotV1(10), B1V3(100))
     # versus(MishaBotV2(), BaselinePlayer("Baseline"))
-    # versus(MishaBotV2(), SmarterBaseline("Smarter"))
+    # versus(MishaBotV1(), SmarterBaseline("Smarter"))
 
     opponent = SmarterBaselineBot()
     env = CardsGuessing(starting_money=100, opponent=opponent)
-    player = MishaBotV1(debug=True)
+    player = MishaBotV1New(debug=False)
     player.set_env(env)
     player.run(100)
 
