@@ -131,7 +131,7 @@ def main():
     env = CardsGuessing(starting_money=100, opponent=opponent)
     player = MishaBotV1(debug=True)
     player.set_env(env)
-    player.run(1)
+    player.run(100)
 
 if __name__ == "__main__":
     main()

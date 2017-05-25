@@ -43,7 +43,7 @@ class CardsGuessing(Env):
     # noinspection PyTypeChecker
     action_space = Discrete(len(list(Card)))
     # noinspection PyTypeChecker
-    observation_space = MultiDiscrete([[0, 1], [0, 1], [0, 2]])  # FirstTurnInRound x Card x Guess
+    observation_space = MultiDiscrete([[0, 1], [0, 1], [0, 2], [0, 2]])  # FirstTurnInRound x Card x Guess x Guess
 
     def __init__(self, starting_money, opponent):
         self._opponent_agent = opponent
@@ -72,8 +72,10 @@ class CardsGuessing(Env):
             self._wins[self._opponent] += 1
         if opponent_money < 10:
             self._wins[self._player] += 1
+        previous_cards = {self._player: Guess(self._card[self._opponent]),
+                          self._opponent: Guess(self._card[self._player])}
         self._start_new_round(player_money, opponent_money)
-        return self._make_first_turn_in_round(rewards)
+        return self._make_first_turn_in_round(rewards, previous_cards)
 
     def _get_round_rewards(self) -> Dict[Player, int]:
         player_correct = self._card[self._opponent] == self._said[self._player]
@@ -117,15 +119,17 @@ class CardsGuessing(Env):
         else:
             return self._finish_round()
 
-    def _make_opponents_turn(self, reward: float, first_turn: bool, done: bool):
-        opp_state = self._get_observation(self._opponent, first_turn), reward, done, {}
+    def _make_opponents_turn(self, reward: float, first_turn: bool, done: bool, previous_cards=None):
+        opp_state = self._get_observation(self._opponent, first_turn, previous_cards), reward, done, {}
         self._opponent_agent.observe(*opp_state)
         opp_action = Card(self._opponent_agent.act())
         self._process_action(self._opponent, opp_action)
 
-    def _get_observation(self, player: Player, first_turn=False):
+    def _get_observation(self, player: Player, first_turn=False, previous_cards=None):
+        if previous_cards is None:
+            previous_cards = {self._player: Guess.AWAITING_FOR_GUESS, self._opponent: Guess.AWAITING_FOR_GUESS}
         opponent = self._get_other_player(player)
-        return FirstTurnInRound(int(first_turn)), self._card[player], self._said[opponent]
+        return FirstTurnInRound(int(first_turn)), self._card[player], self._said[opponent], previous_cards[player]
 
     def _get_other_player(self, player):
         return self._player if player == self._opponent else self._opponent
@@ -148,27 +152,33 @@ class CardsGuessing(Env):
         done = self._money[self._player] < 10 or self._money[self._opponent] < 10
         return done
 
-    def _make_first_turn_in_round(self, rewards):
+    def _make_first_turn_in_round(self, rewards, prev_cards):
         player_reward = rewards[self._player]
         opponent_reward = rewards[self._opponent]
         done = self._is_done()
         if done:
-            opp_state = self._get_observation(self._opponent, first_turn=True), opponent_reward, True, {}
+            assert Guess.AWAITING_FOR_GUESS not in prev_cards.values(), prev_cards
+            opp_obs = self._get_observation(self._opponent, first_turn=True, previous_cards=prev_cards)
+            opp_state = opp_obs, opponent_reward, True, {}
             self._opponent_agent.observe(*opp_state)
-            return self._get_observation(self._player, first_turn=True), player_reward, True, {}
+            player_obs = self._get_observation(self._player, first_turn=True, previous_cards=prev_cards)
+            return player_obs, player_reward, True, {}
         else:
             assert self._money[self._player] >= 0
             assert self._money[self._opponent] >= 0
             if random.random() < 0.5:
-                return self._get_observation(self._player, first_turn=True), player_reward, False, {}
+                player_obs = self._get_observation(self._player, first_turn=True, previous_cards=prev_cards)
+                return player_obs, player_reward, False, {}
             else:
-                self._make_opponents_turn(opponent_reward, first_turn=True, done=done)
-                return self._get_observation(self._player, first_turn=True), player_reward, False, {}
+                self._make_opponents_turn(opponent_reward, first_turn=True, done=done, previous_cards=prev_cards)
+                player_obs = self._get_observation(self._player, first_turn=True, previous_cards=prev_cards)
+                return player_obs, player_reward, False, {}
 
     def _reset(self):
         self._start_new_round(self._starting_money, self._starting_money)
         rewards = {self._player: 0, self._opponent: 0}
-        return self._make_first_turn_in_round(rewards)
+        previous_cards = {self._player: Guess.AWAITING_FOR_GUESS, self._opponent: Guess.AWAITING_FOR_GUESS}
+        return self._make_first_turn_in_round(rewards, previous_cards)
 
     def _render(self, mode='human', close=False):
         print(f"""Player's wins: {self._wins[self._player]}, Opp's wins: {self._wins[self._opponent]}
