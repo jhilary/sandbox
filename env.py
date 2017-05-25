@@ -62,20 +62,20 @@ class CardsGuessing(Env):
         self._current_money = {self._player: player_money, self._opponent: opponent_money}
 
     def _finish_round(self):
-        player_reward, opponent_reward = self._get_round_rewards()
+        rewards = self._get_round_rewards()
         print(f"--== Player's guess {self._said[self._player]} VS real {self._card[self._opponent]}")
         print(f"--== Opps's guess {self._said[self._opponent]} VS real {self._card[self._player]}")
-        print(f"--== Player's reward {player_reward}, Opp's reward {opponent_reward} ==--\n")
-        player_money = self._money[self._player] + player_reward
-        opponent_money = self._money[self._opponent] + opponent_reward
+        print(f"--== Player's reward {rewards[self._player]}, Opp's reward {rewards[self._opponent]} ==--\n")
+        player_money = self._money[self._player] + rewards[self._player]
+        opponent_money = self._money[self._opponent] + rewards[self._opponent]
         if player_money < 10:
             self._wins[self._opponent] += 1
         if opponent_money < 10:
             self._wins[self._player] += 1
         self._start_new_round(player_money, opponent_money)
-        return self._make_first_turn_in_round(player_reward, opponent_reward)
+        return self._make_first_turn_in_round(rewards)
 
-    def _get_round_rewards(self):
+    def _get_round_rewards(self) -> Dict[Player, int]:
         player_correct = self._card[self._opponent] == self._said[self._player]
         opponent_correct = self._card[self._player] == self._said[self._opponent]
 
@@ -99,7 +99,7 @@ class CardsGuessing(Env):
         player_reward = p_value - player_spent
         opponent_reward = o_value - opponent_spent
         assert player_reward + opponent_reward == 0.0, (player_reward, opponent_reward)
-        return player_reward, opponent_reward
+        return {self._player: player_reward, self._opponent: opponent_reward}
 
     def _step(self, action: int):
         assert not self._is_done()
@@ -148,7 +148,9 @@ class CardsGuessing(Env):
         done = self._money[self._player] < 10 or self._money[self._opponent] < 10
         return done
 
-    def _make_first_turn_in_round(self, player_reward, opponent_reward):
+    def _make_first_turn_in_round(self, rewards):
+        player_reward = rewards[self._player]
+        opponent_reward = rewards[self._opponent]
         done = self._is_done()
         if done:
             opp_state = self._get_observation(self._opponent, first_turn=True), opponent_reward, True, {}
@@ -165,7 +167,8 @@ class CardsGuessing(Env):
 
     def _reset(self):
         self._start_new_round(self._starting_money, self._starting_money)
-        return self._make_first_turn_in_round(player_reward=0.0, opponent_reward=0.0)
+        rewards = {self._player: 0, self._opponent: 0}
+        return self._make_first_turn_in_round(rewards)
 
     def _render(self, mode='human', close=False):
         print(f"""Player's wins: {self._wins[self._player]}, Opp's wins: {self._wins[self._opponent]}

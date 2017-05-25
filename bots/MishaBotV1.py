@@ -1,6 +1,7 @@
 from collections import namedtuple
 import random
 from itertools import product
+from pprint import pprint
 
 from env import switch_card, Card, FirstTurnInRound, Guess
 from .Bot import Bot
@@ -26,12 +27,13 @@ class MishaBotV1(Bot):
         self._op_changed_guess = None
 
     def _observe(self) -> None:
-        if self._my_card is not None and self.done:
+        if self._my_card is not None and self.observation[0] == FirstTurnInRound.YES and self._op_previous_guess is not None:
             changed = False if self._op_changed_guess is None else self._op_changed_guess
             opponent_card = self.action if self._prev_reward > 0 else switch_card(self.action)
             history = RoundHistory(self._my_card, self._op_previous_guess, changed, opponent_card)
             self.marginal_counters[history] += 1
             self._number_of_rounds += 1
+            pprint(self.marginal_counters)
             self._reset()
 
         if self.observation[2] != Guess.AWAITING_FOR_GUESS:

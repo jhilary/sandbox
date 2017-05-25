@@ -1,4 +1,5 @@
 import random
+from pprint import pprint
 from typing import Dict
 
 from casino import Player, Card, Game
@@ -130,7 +131,7 @@ def main():
     env = CardsGuessing(starting_money=100, opponent=opponent)
     player = MishaBotV1(debug=True)
     player.set_env(env)
-    player.run(200)
+    player.run(1)
 
 if __name__ == "__main__":
     main()
