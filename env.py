@@ -189,8 +189,38 @@ class CardsGuessing(Env):
     def _render(self, mode='human', close=False):
         if close:
             return
+        # state = {
+        #     "names": ("Player", "Computer"),
+        #     "wins": (0, 0),
+        #     "rewards": (10, 00),
+        #     "money": (100, 100),
+        #     "bank": 0,
+        #     "end": False,
+        #     "steps": [({"type": "card", "card": "R", "money": 100}, {"type": "card", "card": "B", "money": 90})]
+        # }
 
         outfile = StringIO() if mode == 'ansi' else sys.stdout
+#         outfile.write(
+# """
+#  {:s}
+# |{:24s}Score{:24s}|
+# |{:2s}{:>10s}{:10s}{:4d}:{:<4d}{:10s}{:10s}{:2s}|
+# |{:53s}|
+# |{:24s}Money{:24s}|
+# |{:22s}{:4d}:{:<4d}{:22s}|
+# |{:53s}|
+# |{:23s}Bank: {:4<d}{:23s}|
+# \n
+# """
+#                 .format("_"*53,
+#                         "","",
+#                         "", state["names"][0], "", state["wins"][0], state["wins"][1], "", state["names"][1], "",
+#                         "",
+#                         "","",
+#                         "", state["money"][0], state["money"][1], "",
+#                         "",
+#                         "", state["bank"], ""))
+
 
         outfile.write(
             f"""
@@ -203,16 +233,7 @@ class CardsGuessing(Env):
             \n"""
         )
         return outfile
-        # return {
-        #     "names": ("Player", "Opponent"),
-        #     "wins": (0, 0),
-        #     "rewards": (0, 0),
-        #     "money": (100, 100),
-        #     "bank": 0,
-        #     "end": False,
-        #     "steps": [({"type": "wait | pass | card", "card": None, "money": 100},
-        #                {"type": "card", "card": "RED", "money": 90})]
-        # }
+
 
     def _seed(self, seed=None):
         random.seed(seed)
