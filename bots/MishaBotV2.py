@@ -15,3 +15,4 @@ class MishaBotV2(Bot):
 
     def _observe(self) -> None:
         pass
+

@@ -1,137 +1,39 @@
-import random
-from pprint import pprint
-from typing import Dict
+from datetime import datetime
 
-from casino import Player, Card, Game
-from env import CardsGuessing
-from utils import Inteleaving
-# from misha import MishaBotV1, MishaBotV2
-# from ilariia import B1V1, B1V2, B1V3, BlackBot
 from bots import *
-
-
-class BaselinePlayer(Player):
-    def __init__(self, name):
-        self._name = name
-        self._my_card = None
-
-    def say_card(self) -> Card:
-        return random.choice([Card.RED, Card.BLACK])
-
-    def opponent_said_card(self, opponents_bid: Card) -> None:
-        return None
-
-    def would_change_card(self) -> bool:
-        return random.choice([True, False])
-
-    def opponent_change_card(self, is_changed: bool) -> None:
-        pass
-
-    def win(self, value):
-        pass
-
-    def end_round(self):
-        pass
-
-    def take_card(self, card: Card) -> None:
-        self._my_card = card
-
-    def opponent_card(self, card: Card) -> None:
-        pass
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-
-class SmarterBaseline(Player):
-    def __init__(self, name):
-        self._name = name
-        self._my_card = None
-        self._opponent_card = None
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    def take_card(self, card: Card) -> None:
-        self._my_card = card
-
-    def say_card(self) -> Card:
-        if self._my_card == Card.RED:
-            return Card.BLACK
-        else:
-            return Card.RED
-
-    def opponent_said_card(self, opponents_bid: Card) -> None:
-        self._opponent_card = opponents_bid
-
-    def would_change_card(self) -> bool:
-        return False
-
-    def opponent_change_card(self, is_changed: bool) -> None:
-        self._opponent_card = Card.BLACK if self._opponent_card == Card.RED else Card.RED
-
-    def win(self, value: int) -> None:
-        pass
-
-    def opponent_card(self, card: Card) -> None:
-        pass
-
-    def end_round(self) -> None:
-        pass
-
-
-def versus(p1, p2):
-    winners: Dict[Player, int] = {p1: 0, p2: 0}
-    games = 1000
-    rounds = 1000
-    print("Start battle %s vs %s\n" % (p1.name, p2.name))
-    for i in range(games):
-        game = Game(p1, 100, p2, 100, rounds=rounds, debug=False)
-        winner = game.run()
-        if winner is not None:
-            winners[winner] += 1
-            # print("%s winning rate: %f" % (p1.name, float(winners[p1]) / ( i + 1)))
-            # print("%s winning rate: %f" % (p2.name, float(winners[p2]) / ( i + 1)))
-
-    print("Battle result:\n")
-    print("After %s games %s won %d times and %s won %d times" % (games,
-                                                                  p1.name, winners[p1],
-                                                                  p2.name, winners[p2]))
-    print("%s winning rate: %f" % (p1.name, float(winners[p1])/games))
-    print("%s winning rate: %f" % (p2.name, float(winners[p2])/games))
-    print("\n")
+import gym
+from gym import wrappers
 
 
 def main():
-    # versus(B1V2(100), B1V1())
-    # versus(B1V3(100), B1V1())
-    # versus(B1V2(100), SmarterBaseline("MishaSmarter"))
-    # versus(B1V2(100), BaselinePlayer("MishaBaseline"))
-    # versus(B1V3(100), SmarterBaseline("MishaSmarter"))
-    # versus(B1V3(100), BaselinePlayer("MishaBaseline"))
-    # versus(B1V2(100), B1V3(100))
-    # versus(MishaBotV1(10), BaselinePlayer("MishaBaseline"))
-    # versus(MishaBotV1(10), BaselinePlayer("MishaSmarter"))
-    # versus(MishaBotV1(10), B1V3(500))
-    # versus(SmarterBaseline("MishaSmarter"), B1V3(100))
-    # versus(BaselinePlayer("MishaBaseline"), B1V3(100))
-    # versus(MishaBotV1(10), B1V3(100))
-    # versus(B1V1(), B1V3(100))
-    # versus(BlackBot(), B1V3(100))
-    # versus(B1V1(), B1V3(500))
 
-    # versus(MishaBotV1(10), MishaBotV2())
-    # versus(MishaBotV1(10), B1V3(100))
-    # versus(MishaBotV2(), BaselinePlayer("Baseline"))
-    # versus(MishaBotV1(), SmarterBaseline("Smarter"))
-
+    env_id = 'GuessCard-v1'
     opponent = SmarterBaselineBot()
-    env = CardsGuessing(starting_money=100, opponent=opponent)
     player = MishaBotV1New(debug=False)
+    record_folder = f'./GuessCard_{player.name}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
+
+    gym.envs.register(
+        id=env_id,
+        entry_point='env:CardsGuessing',
+        kwargs={
+            "starting_money": 100,
+            "opponent": opponent
+        },
+        max_episode_steps=1000,
+        nondeterministic=True
+    )
+
+    env = gym.envs.make(env_id)
+    env = wrappers.Monitor(env, record_folder, lambda _: True, uid=player.name)
     player.set_env(env)
-    player.run(100)
+    player.run(10)
+    env.close()
+
+    for video, _ in env.videos:
+        print(f'asciinema play {video}')
+
+    # gym.upload(record_folder, api_key='sk_OKAdH4EQUaO9mSyYJNPw')
+
 
 if __name__ == "__main__":
     main()

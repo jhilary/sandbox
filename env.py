@@ -1,10 +1,15 @@
+import sys
 import random
 from itertools import zip_longest
+from io import StringIO
 from enum import IntEnum
 from typing import Dict, List
+import logging
 
 from gym import Env
 from gym.spaces import Discrete, MultiDiscrete
+
+logging.disable(logging.WARNING)
 
 
 class FirstTurnInRound(IntEnum):
@@ -52,7 +57,7 @@ class CardsGuessing(Env):
     _opponent = Player.OPPONENT
     _all_players = [_player, _opponent]
 
-    metadata = {'render.modes': ['human']}
+    metadata = {'render.modes': ['human', 'ansi']}
 
     # noinspection PyTypeChecker
     action_space = Discrete(len(list(Card)))
@@ -60,6 +65,7 @@ class CardsGuessing(Env):
     observation_space = MultiDiscrete([[0, 1], [0, 1], [0, 2], [0, 2]])  # FirstTurnInRound x Card x Guess x Guess
 
     def __init__(self, starting_money, opponent):
+        super(CardsGuessing, self).__init__()
         self._opponent_agent = opponent
         self._starting_money = starting_money
         self._start_new_round(starting_money, starting_money)
@@ -76,9 +82,9 @@ class CardsGuessing(Env):
 
     def _finish_round(self):
         rewards = self._get_round_rewards()
-        print(f"--== Player's guess {self._said[self._player]} VS real {self._card[self._opponent]}")
-        print(f"--== Opps's guess {self._said[self._opponent]} VS real {self._card[self._player]}")
-        print(f"--== Player's reward {rewards[self._player]}, Opp's reward {rewards[self._opponent]} ==--\n")
+        # print(f"--== Player's guess {self._said[self._player]} VS real {self._card[self._opponent]}")
+        # print(f"--== Opps's guess {self._said[self._opponent]} VS real {self._card[self._player]}")
+        # print(f"--== Player's reward {rewards[self._player]}, Opp's reward {rewards[self._opponent]} ==--\n")
         player_money = self._money[self._player] + rewards[self._player]
         opponent_money = self._money[self._opponent] + rewards[self._opponent]
         if player_money < 10:
@@ -214,13 +220,32 @@ class CardsGuessing(Env):
         return self._make_first_turn_in_round(rewards, previous_cards)
 
     def _render(self, mode='human', close=False):
-        print(f"""Player's wins: {self._wins[self._player]}, Opp's wins: {self._wins[self._opponent]}
-Player's card: {self._card[self._player].name}, Opp's card: {self._card[self._opponent].name}
-Player's money: {self._money[self._player]}, Opp's money: {self._money[self._opponent]}
-Player's guess: {self._said[self._player].name}, Opp's guess: {self._said[self._opponent].name},
-Player's current money: {self._current_money[self._player]}, Opp's current money: {self._current_money[self._opponent]}
-Player passed: {self._passed[self._player]}, Opp passed: {self._passed[self._opponent]}
-""")
+        if close:
+            return
+
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
+
+        outfile.write(
+            f"""
+            Player's wins: {self._wins[self._player]}, Opp's wins: {self._wins[self._opponent]}
+            Player's card: {self._card[self._player].name}, Opp's card: {self._card[self._opponent].name}
+            Player's money: {self._money[self._player]}, Opp's money: {self._money[self._opponent]}
+            Player's guess: {self._said[self._player].name}, Opp's guess: {self._said[self._opponent].name},
+            Player's current money: {self._current_money[self._player]}, Opp's current money: {self._current_money[self._opponent]}
+            Player passed: {self._passed[self._player]}, Opp passed: {self._passed[self._opponent]}
+            \n"""
+        )
+        return outfile
+        # return {
+        #     "names": ("Player", "Opponent"),
+        #     "wins": (0, 0),
+        #     "rewards": (0, 0),
+        #     "money": (100, 100),
+        #     "bank": 0,
+        #     "end": False,
+        #     "steps": [({"type": "wait | pass | card", "card": None, "money": 100},
+        #                {"type": "card", "card": "RED", "money": 90})]
+        # }
 
     def _seed(self, seed=None):
         random.seed(seed)
