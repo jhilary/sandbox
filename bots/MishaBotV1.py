@@ -14,7 +14,6 @@ class MishaBotV1New(Bot):
     def __init__(self, apriori=10, debug=False):
         super(MishaBotV1New, self).__init__(debug)
         self._apriori = apriori
-
         # Storage
         self.marginal_counters = self._init_counters(apriori)
         self._number_of_rounds = len(self.marginal_counters) * apriori
@@ -22,7 +21,7 @@ class MishaBotV1New(Bot):
         # Round state
         self._my_card = None
         self._prev_reward = None
-        self._op_previous_guess: Card = None
+        self._op_previous_guess = None
         self._op_changed_guess = None
 
     def _observe(self) -> None:

@@ -51,13 +51,13 @@ class Bot(object):
             counter = 0
             initial_state = self.env.reset()
             self.observe(*initial_state)
-            self.env.render()
+            self.env.render(mode='ansi')
             while True:
                 counter += 1
                 action = self.act()
                 state = self.env.step(action)
                 self.observe(*state)
-                self.env.render()
+                self.env.render(mode='ansi')
                 if self.done:
                     print(f"Episode { i_episode } finished after { counter } timesteps")
                     break
